@@ -1,0 +1,74 @@
+---
+title: "Lista 1 - CE"
+author: "Brenno Cordeiro - 180052071"
+date: "April 17, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library('tidyverse')
+```
+
+### *Questão 3.3.1 - 4*
+Os dois mapeamentos estéticos são usados.
+
+### *Questão 3.5.1 - 6*
+Pois as linhas podem se estender para baixo, enquanto as colunas são limitadas pelo espaço onde devem ser mostradas, sendo condensadas para apresentar toda a informação.
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_grid(drv ~ cty)
+```
+
+### *Questão 3.6.1 - 6*
+
+```{r message=FALSE}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() + 
+  geom_smooth(se=FALSE)
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+    geom_smooth(aes(group = drv),se=FALSE) +
+    geom_point()
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy, color = drv)) + 
+  geom_point() + 
+  geom_smooth(aes(group = drv), se=FALSE)
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(aes(color=drv)) + 
+  geom_smooth(se=FALSE)
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(aes(color=drv)) + 
+  geom_smooth(aes(linetype = drv),se=FALSE) 
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(shape = 21, stroke = 3, color = "white") +
+  geom_point(mapping = aes(color=drv))
+```
+
+### *Questão 3.7.1 - 5*
+O gráfico de barras, além da identidade count, possui a identidade prop que relaciona o count de cada variável com o count total. Dessa forma, o parâmetro group precisa existir para indicar ao ggplot a quem a proporção se refere.
+
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, y = ..prop.., group = 1))
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, y = ..prop.. , group = color, fill = color))
+```
+
+### *Questão 3.8.1 - 4*
+*"dodge"*
+
+```{r}
+ggplot(mpg) +
+  geom_boxplot(aes(class, hwy, fill = drv))
+```
+
+### *Questão 3.9.1 - 4*
+1. São diretamente proporcionais.
+2. Para fixar a escala das variáveis no gráfico.
+3. Gera uma linha de referênia com os dados especificados.
