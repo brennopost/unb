@@ -1,0 +1,32 @@
+---
+title: "Lista 2 - Transformação"
+author: "Brenno Cordeiro"
+date: "April 20, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(nycflights13)
+library(tidyverse)
+```
+
+### *Questão 5.2.4 - 1*
+1. Atraso de chegada de duas horas ou mais
+```{r message=FALSE}
+filter(flights, arr_delay >= 120)
+```
+
+2. Voaram para Houston
+```{r}
+filter(flights, dest %in% c('IAH', 'HOU'))
+```
+
+3. Foram operados por United, American ou Delta
+```{r}
+filter(flights, carrier %in% c('UA', 'AA', 'DL'))
+```
+
+
+
+
