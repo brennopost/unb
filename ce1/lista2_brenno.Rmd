@@ -11,7 +11,7 @@ library(nycflights13)
 library(tidyverse)
 ```
 
-### *Questão 5.2.4 - 1*
+### *1. Questão 5.2.4 - 1*
 1. Atraso de chegada de duas horas ou mais
 ```{r message=FALSE}
 filter(flights, arr_delay >= 120)
@@ -27,6 +27,44 @@ filter(flights, dest %in% c('IAH', 'HOU'))
 filter(flights, carrier %in% c('UA', 'AA', 'DL'))
 ```
 
+4. Partiram no verão
+```{r}
+filter(flights, month %in% c(7:9))
+```
+
+5. Chegaram com mais de duas horas de atraso, mas não sairam atrasados
+```{r}
+filter(flights, arr_delay >= 120 & dep_delay == 0)
+```
+
+6. Foram adiadas por pelo menos uma hora, mas recuperaram mais de 30 minutos do atraso durante
+o voo
+```{r}
+filter(flights, dep_delay >= 60 & sched_arr_time - arr_time >= 30)
+```
+
+7. Partiram entre meia-noite e 6 da manhã
+```{r}
+filter(flights, dep_time <= 600)
+```
 
 
+### *2. Questão 5.3.1 - 4*
 
+1. Maior distância
+```{r}
+arrange(flights, desc(distance))
+```
+
+2. Menor distância
+```{r}
+arrange(flights, distance)
+```
+
+
+### *3. Questão 5.4.1 - 3*
+A função `one_of` permite que a função `select` selecione uma variável caso ela esteja dentro dos valores fornecidos.
+Para o vetor 
+`vars <- c("year", "month", "day", "dep_delay", "arr_delay")`
+a função pode ser útil caso se quisermos selecionar as variáveis incluídas nesse vetor, desta forma
+`select(flights, one_of(vars))`
