@@ -5,11 +5,8 @@ y = int(input())
 
 if x < y:
     print("{} e menor que {}".format(x, y))
-
-
 if x == y:
     print("{} e igual a {}".format(x, y))
-
 if x > y:
     print("{} e maior que {}".format(x, y))
 
