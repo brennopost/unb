@@ -17,8 +17,8 @@ def p_translator(text):
 p_translator(message)
 
 # %% QUESTA0 C
-A, B = input().split()
-print("{x}".format(x="A" if max(A.lower(), B.lower()) == A else "B"))
+A, B = input().lower().split()
+print("{x}".format(x="B" if B > A else "A"))
 
 # %% QUESTAO D
 n = int(input())
@@ -41,9 +41,18 @@ print("{} {}".format(p, u))
 
 # %% QUESTAO E
 n = input().split('.')
-print(n)
 for i in n:
-    print(i[0:3].title() + i[3:], end=".")
+    print(i[0:2].title() + i[2:], end=".")
+
+# %% QUESTAO E DENOVO
+n = input()
+m = []
+for i in range(len(n)):
+    if n[i-2] in "." and n[i-1] == ' ' or i == 0 or n[i-1] in ".":
+        m.append(n[i].upper())
+    else:
+        m.append(n[i])
+print("".join(m))
 
 # %% QUESTAO F
 a = input()
@@ -53,7 +62,22 @@ def john(text):
     for i in "JOHN":
         o += text.count(i)
     return o
-print("{} {}".format(john(a), john(b)))
+#print("{} {}".format(john(a), john(b)))
+print("{} {}".format(john(a) - john(b), john(b)))
+
+# %% QUESTA0 F DENOVO
+a = input().upper()
+b = input().upper()
+x = [0, 0]
+for i in a:
+    if i in "JOHN":
+        x[0] += 1
+for i in b:
+    if i in "JOHN":
+        x[0] -= 1
+        x[1] += 1
+
+print("{} {}".format(x[0], x[1]))
 
 # %% QUESTAO G
 x = input()

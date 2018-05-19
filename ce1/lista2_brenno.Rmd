@@ -78,7 +78,8 @@ cancelled <- flights %>%
 ggplot(cancelled, aes(day, n)) +
   geom_smooth(se = FALSE)
 ```
-Há mais voos atrasados perto das 9 horas.
+
+Há mais voos atrasados perto do dia 9.
 
 ```{r message=FALSE}
 cancelled <- flights %>%
