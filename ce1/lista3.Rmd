@@ -1,0 +1,219 @@
+---
+title: "Lista 3"
+author: "Brenno Cordeiro"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library('tidyverse')
+library('nycflights13')
+```
+
+## 7.3.4
+
+#### 7.3.4.1.
+```{r, echo=FALSE, message=FALSE}
+ggplot(diamonds) + 
+  geom_freqpoly(aes(x), binwidth = 0.5, color = "red") +
+  geom_freqpoly(aes(y), binwidth = 0.5, color = "green") +
+  geom_freqpoly(aes(z), binwidth = 0.5, color = "blue") +
+  coord_cartesian(xlim = 0:18)
+```
+"x" seria a altura enquanto "y" e "z" seriam as largura e profundidade do diamante.
+
+#### 7.3.4.2.
+```{r}
+ggplot(diamonds, aes(price)) +
+  geom_freqpoly(binwidth = 100, position = "stack") +
+  coord_cartesian(xlim = 0:2500)
+```
+
+No valor 1500 de *price* há um vale que não poderia ser visualizado com um `binwidth` maior
+
+#### 7.3.4.3.
+```{r}
+diamonds %>% 
+  filter(carat %in% c(0.99, 1)) %>% 
+  count(carat)
+```
+  
+É possível que os valor de *carat* dos diamantes sejam arredondados para cima.
+
+#### 7.3.4.4.
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(diamonds, aes(price)) +
+  geom_histogram() +
+  coord_cartesian(0:5000, 0:5000)
+
+ggplot(diamonds, aes(price))+
+  geom_histogram() +
+  xlim(0,5000) +
+  ylim(0,5000)
+```
+
+`coord_cartesian` da um zoom no gráfico enquanto `xlim/ylim` cortam os valores fora do limite.
+
+## 7.5.1.1
+#### 7.5.1.1.1.
+```{r}
+flights %>% 
+  mutate(
+    cancelled = is.na(dep_time),
+    sched_hour = sched_dep_time %/% 100,
+    sched_min = sched_dep_time %% 100,
+    sched_dep_time = sched_hour + sched_min / 60
+  ) %>% 
+  ggplot() +
+    geom_freqpoly(aes(x = sched_dep_time, y = ..density.., color = cancelled), bins = 18)
+```
+
+#### 7.5.1.1.2.
+
+A variável `carat` tem forte relação com o preço:
+```{r, echo=FALSE, message=FALSE}
+ggplot(diamonds,aes(carat, price)) +
+  geom_point() +
+  geom_smooth()
+
+```
+
+Comparando com `cut`
+```{r}
+ggplot(diamonds) +
+  geom_boxplot(aes(x=cut, y=carat))
+```
+
+Os diamantes de maior quilate estão mais distribuidos nas piores qualidades. Portanto, as piores categorias tem os diamantes mais caros
+
+#### 7.5.1.1.3.
+```{r, message=FALSE}
+library('ggstance')
+ggplot(mpg, aes(hwy, class)) +
+  geom_boxploth()
+
+ggplot(mpg, aes(class, hwy)) +
+  geom_boxplot() +
+  coord_flip()
+```
+Os gráficos são idênticos.
+
+#### 7.5.1.1.4.
+```{r, message=FALSE}
+library('lvplot')
+
+ggplot(diamonds, aes(cut, price)) +
+  geom_lv()
+```
+
+#### 7.5.1.1.5.
+```{r, message=FALSE}
+ggplot(mpg, aes(class, hwy)) +
+  geom_violin()
+
+ggplot(mpg, aes(hwy)) +
+  geom_histogram() +
+  facet_wrap(~ class)
+
+ggplot(mpg, aes(hwy)) +
+  geom_freqpoly(aes(color = class))
+```
+
+O `geom_violin()` é bom para comparar a distribuição dos dados diretamente. `geom_histogram()` com facetas é bom para ver o comportamente de cada classe separadamente. Por fim, `geom_freqpoly()` colorido é útil quando se quer verificar a relação do comportamento de cada classe de valores.
+
+#### 7.5.1.1.6.
+```{r}
+library(ggbeeswarm)
+
+ggplot(mpg, aes(class, hwy)) +
+  geom_beeswarm()
+ggplot(mpg, aes(class, hwy)) +
+  geom_quasirandom()
+```
+
+## 7.5.2.1
+#### 7.5.2.1.1.
+Distribuição de `cut` em `color`
+```{r}
+diamonds %>% 
+  count(color, cut) %>%  
+  group_by(color) %>% 
+  mutate(prop = n / sum(n)) %>% 
+  ggplot(mapping = aes(x = color, y = cut)) +
+    geom_tile(mapping = aes(fill = prop))
+```
+
+Analogamente, distribuição de `color` em `cut`
+```{r}
+diamonds %>% 
+  count(color, cut) %>%  
+  group_by(cut) %>% 
+  mutate(prop = n / sum(n)) %>% 
+  ggplot(mapping = aes(x = color, y = cut)) +
+    geom_tile(mapping = aes(fill = prop))
+```
+
+#### 7.5.2.1.2.
+```{r}
+flights %>% 
+  group_by(month, dest) %>% 
+  summarise(delay = mean(dep_delay, na.rm = TRUE)) %>% 
+  ggplot(aes(y=month, x=dest, fill = delay)) +
+    geom_tile()
+```
+
+Há muitos valores diferentes para a variável `dest` e muitos valores faltantes.
+
+#### 7.5.2.1.3.
+```{r}
+diamonds %>% 
+  count(color, cut) %>%  
+  ggplot(mapping = aes(y = color, x = cut)) +
+    geom_tile(mapping = aes(fill = n))
+```
+
+Há mais valores no eixo *y*, o que causa o gráfico ficar levemente distorcido.
+
+## 7.5.3.1
+#### 7.5.3.1.1.
+```{r, message=FALSE}
+ggplot(diamonds, aes(price)) +
+  geom_freqpoly(aes(colour = cut_width(carat, 0.5)))
+
+ggplot(diamonds, aes(price)) +
+  geom_freqpoly(aes(colour = cut_number(carat, 10)))
+```
+Enquanto `cut_width` separa em intervalos iguais, `cut_number` separa em intervalos proporcionais. Dessa forma, o `cut_width` se demonstra ineficiente na visualização da distribuição de `carat` e `price`, pois a muitas classes ficam vazias comparadas as outras.
+
+#### 7.5.3.1.2.
+```{r, message=FALSE}
+ggplot(diamonds, aes(carat)) +
+  geom_freqpoly(aes(colour = cut_number(price, 10))) +
+  coord_cartesian(xlim = 0:2.5)
+```
+
+#### 7.5.3.1.3.
+```{r, message=FALSE}
+diamonds %>% 
+  filter(carat <= 4) %>%  
+  ggplot() +
+    geom_boxplot(aes(y = price, x = cut_width(carat, 1, 0.5)))
+```
+
+Diamantes menores tem uma variabilidade menor. Isso não me impressiona, visto que diamantes maiores dependem muito de outros fatores para determinar seu preço.
+
+#### 7.5.3.1.4.
+```{r}
+ggplot(diamonds) +
+  geom_histogram(aes(log(price),y=..density.., fill=cut), bins = 30) +
+  facet_wrap(~ cut_number(carat, 10))
+```
+
+#### 7.5.3.1.5.
+```{r}
+ggplot(data = diamonds) +
+  stat_bin2d(mapping = aes(x = x, y = y), binwidth = 0.5) +
+  coord_cartesian(xlim = c(4, 11), ylim = c(4, 11))
+```
+
+Como há uma relação forte entre `x` e `y`, um gráfico `bin` não é capaz de revelar os *outliers*.
