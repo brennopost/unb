@@ -1,5 +1,4 @@
 # %% QUESTAO A
-
 N = int(input())
 games = []
 for  i in range(N):
@@ -68,3 +67,60 @@ for j in range(N):
         diff += 1
 
 print(diff)
+
+# %% QUESTAO E REFAZIDA
+N = int(input())
+line = []
+
+# get input
+for _ in range(N):
+    current_line = input()
+    line.append(current_line)
+
+# runs for every line (i)
+for i in range(N):
+    # runs for every char (j)
+    for j in range(N):
+        # checks if current char is a '.' underneath a 'o'
+        if i > 0 and line[i][j] == '.' and line[i-1][j] == 'o':
+            print('o', end="")
+        # cheks if current char is a 'o' above a '.'
+        elif N-1 > i and line[i][j] == 'o' and line[i+1][j] == '.':
+            print('.', end="")
+        # prints o resto
+        else:
+            print(line[i][j], end="")
+    print()
+
+# %% QUESTAO F
+input_string = input().split('_')
+for i in input_string:
+    print(i.capitalize(), end='')
+    
+# %% QUESTAO G
+H, P = input().split()
+
+# creates towers and populates tower A
+A = []
+B = []
+C = []
+
+for i in range(int(H)):
+    A.append(i+1)
+
+# main loop
+
+def move(n, source, target, auxiliary):
+    if n > 0:
+        # move n - 1 disks from source to auxiliary, so they are out of the way
+        move(n - 1, source, auxiliary, target)
+
+        # move the nth disk from source to target
+        target.append(source.pop())
+
+        # move the n - 1 disks that we left on auxiliary onto target
+        move(n - 1, auxiliary, target, source)
+
+
+move(int(P), A, C, B)
+print("{} {} {}".format(len(A), len(B), len(C)))
