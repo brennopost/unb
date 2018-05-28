@@ -124,3 +124,12 @@ def move(n, source, target, auxiliary):
 
 move(int(P), A, C, B)
 print("{} {} {}".format(len(A), len(B), len(C)))
+
+# %% QUESTAO G binária
+h, p = input().split()
+h, p = int(h), int(p)
+
+bin_p = format(p, '0{}b'.format(h))
+hanoi = [0,0,0]
+
+for i in len(format(int(h), 'b')):
