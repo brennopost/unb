@@ -128,9 +128,10 @@ print("{} {} {}".format(len(A), len(B), len(C)))
 # %% QUESTAO G binária
 h, p = input().split()
 h, p = int(h), int(p)
-
-bin_p = format(p, '0{}b'.format(h))
 hanoi = [h,0,0]
+
+if p > 2**h-1:
+    p = 2**h-1
 
 for x in range(p + 1):
     hanoi[(x&x-1)%3] -= 1
