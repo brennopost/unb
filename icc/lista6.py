@@ -5,22 +5,22 @@ for  i in range(N):
     game = input()
     games.append(game)
 
-for i in range(len(games) - 1):
-    print(games[-i], end=', ')
-print(games[-1], end='')
+games.reverse()
+print(", ".join(games))
 
 # %% QUESTAO B
 
 C = int(input())
 inv = []
 
-for i in C:
-    inv.append()
+for i in range(C):
+    name = input()
+    inv.append(name)
 
 if "André" in inv:
     print("Cuidado!")
 else:
-    print("Seguro")
+    print("Seguro!")
 
 # %% QUESTAO C
 F, P = input().split()
@@ -45,7 +45,7 @@ print(winner)
 N = int(input())
 
 toys = input().split()
-toys_ = toys
+toys_ = list(toys) # prevents referencing
 
 for i in range(5):
     toy, dir, steps = input().split()
@@ -124,29 +124,3 @@ def move(n, source, target, auxiliary):
 
 move(int(P), A, C, B)
 print("{} {} {}".format(len(A), len(B), len(C)))
-
-# %% QUESTAO G-AMBIARRA
-H, P = input().split()
-
-A, B, C = [],[],[]
-a,b,c = [],[],[]
-x,y,z = [],[],[]
-for i in range(int(H)):
-    A.append(i+1)
-
-def move(n, source, target, auxiliary):
-    if n > 0:
-        move(n - 1, source, auxiliary, target)
-        a.append(len(A))
-        b.append(len(B))
-        c.append(len(C))
-        target.append(source.pop())
-        move(n - 1, auxiliary, target, source)
-
-move(int(H), A, C, B)
-for i in range(0,int(P)+1):
-    x.append(a[i + 1] - a[i])
-    y.append(b[i + 1] - b[i])
-    z.append(c[i + 1] - c[i])
-
-print("{} {} {}".format(int(H) + sum(x[:int(P)]), sum(y[:int(P)]), sum(z[:int(P)])))
