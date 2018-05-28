@@ -130,6 +130,13 @@ h, p = input().split()
 h, p = int(h), int(p)
 
 bin_p = format(p, '0{}b'.format(h))
-hanoi = [0,0,0]
+hanoi = [h,0,0]
 
-for i in len(format(int(h), 'b')):
+for x in range(p + 1):
+    hanoi[(x&x-1)%3] -= 1
+    hanoi[((x|x-1)+1)%3] += 1
+
+if h % 2 == 0:
+    print("{} {} {}".format(hanoi[0], hanoi[2], hanoi[1]))
+else:
+    print(" ".join([str(i) for i in hanoi]))
