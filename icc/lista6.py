@@ -58,7 +58,7 @@ for i in range(5):
         move = int(steps) * -1
 
     # move the toy on the list
-    toys.insert(toy_pos + move, toys.pop(toy_pos))
+    toys.insert((toy_pos + move) % N, toys.pop(toy_pos))
 
 # diff checker
 diff = 0
@@ -75,28 +75,38 @@ line = []
 # get input
 for _ in range(N):
     current_line = input()
-    line.append(current_line)
+    line.append(list(current_line))
 
-# runs for every line (i)
-for i in range(N):
-    # runs for every char (j)
-    for j in range(N):
-        # checks if current char is a '.' underneath a 'o'
-        if i > 0 and line[i][j] == '.' and line[i-1][j] == 'o':
-            print('o', end="")
-        # cheks if current char is a 'o' above a '.'
-        elif N-1 > i and line[i][j] == 'o' and line[i+1][j] == '.':
-            print('.', end="")
-        # prints o resto
+for _ in range(N):
+    newline = []
+    # runs for every line (i)
+    for i in range(N):
+        newline.append([])
+        # runs for every char (j)
+        for j in range(N):
+            # checks if current char is a '.' underneath a 'o'
+            if i > 0 and line[i][j] == "." and line[i-1][j] == 'o':
+                newline[i].append('*')
+            # cheks if current char is a 'o' above a '.'
+            elif N-1 > i and line[i][j] == 'o' and line[i+1][j] == ".":
+                newline[i].append('.')
+            else:
+                newline[i].append(line[i][j])
+    line = newline[:]
+
+for k in newline:
+    for l in k:
+        if l == '*':
+            print('o', end='')
         else:
-            print(line[i][j], end="")
+            print(l, end='')
     print()
 
 # %% QUESTAO F
 input_string = input().split('_')
 for i in input_string:
     print(i.capitalize(), end='')
-    
+
 # %% QUESTAO G
 H, P = input().split()
 
