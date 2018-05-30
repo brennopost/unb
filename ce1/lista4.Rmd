@@ -13,6 +13,9 @@ library('tidyverse')
 
 fluxo_lot$faixa <- as.factor(fluxo_lot$faixa)
 levels(fluxo_lot$faixa) <- c('Esquerda','Meio','Direita')
+fluxo_lot$dia_semana <- as.factor(fluxo_lot$dia_semana)
+levels(fluxo_lot$dia_semana) <- c("Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado")
+
 
 janeiro_temps$ano <- as.factor(janeiro_temps$ano)
 ```
@@ -37,7 +40,8 @@ ggplot(fluxo_lot,aes(fluxo, lotacao)) +
   geom_smooth(se = FALSE, method = "loess")
 ```
 
-Parece haver uma forte relação entre o fluxo e taxa de lotação quando o fluxo é menor que ~70. Quando o fluxo é maior, a relação ainda parece existir, mas há muitos pontos fora dessa relação. Por fim, a relação parece sim existir, mas é mais fraca quando o fluxo cresce.
+<!-- Parece haver uma forte relação entre o fluxo e taxa de lotação quando o fluxo é menor que ~70. Quando o fluxo é maior, a relação ainda parece existir, mas há muitos pontos fora dessa relação. Por fim, a relação parece sim existir, mas é mais fraca quando o fluxo cresce. -->
+Há uma forte relação entre o fluxo e a lotação abaixo de ~0.15. Nesse intervalo, quando maior o valor de lotação, maior é o fluxo encontrado. Para valores maiores que 0.15, a relação ainda parece existir, porém mais fraca. Conforme os valores de lotação crescem a partir de 0.2, o valores de fluxo decrescem.
 
 ### *Questão 4*
 #### Essa relação varia de acordo com horário do dia ou dia da semana?
@@ -47,36 +51,42 @@ fluxo_lot %>%
   mutate(
     horario = hora + minuto/60 + segundo/3600
   ) %>% 
-ggplot(aes(fluxo, lotacao)) +
-  geom_point() +
+ggplot(aes(y=lotacao, x=fluxo)) +
+  geom_point(alpha = 0.2) +
   geom_smooth(se = FALSE, method = "loess") +
   facet_wrap(~ cut_width(horario, 2, 1))
 ```
 
-De manhã, podemos verificar que em intervalos de horário como das 8 às 10, das 14 às 16 e das 20 às 22 horas, a relação entre fluxo e lotação é menor percebida, visto que esses são horários de pico, onde a movimentação é maior, causando congestionamentos que aumentam muito a lotação. No peŕiodo entre as 16 e às 18 à relação é ainda mais sutil.
+De manhã, podemos verificar que em intervalos de horário como das 8 às 10, das 14 às 18 e das 20 às 22 horas, a relação entre fluxo e lotação é diferente dos demais horários, visto que esses são horários de pico, onde a movimentação é maior, causando congestionamentos que aumentam o valor da variável lotação.
 
 ```{r}
-#fluxo_lot$dia_semana <- as.factor(fluxo_lot$dia_semana)
-#levels(fluxo_lot$dia_semana) <- c("")
-
-ggplot(fluxo_lot,aes(y=fluxo, x=lotacao)) +
+ggplot(fluxo_lot,aes(fluxo, lotacao)) +
   geom_point(alpha=0.2) +
   geom_smooth(se = FALSE, method = "loess") +
   facet_wrap(~ dia_semana)
 ```
-RESPONDER SOBRE A SEMANA!!!
+Podemos perceber que a relação entre fluxo e lotação também varia conforme os dias da semana. Nos dias úteis, vemos um comportamente similiar dos dados. No final de semana, é possível notar que o fluxo em é relativamente menor que nos demais dias analisando apenas os valores máximos em que encontramos observações. Podemos concluir ainda que nesses dias não houveram congestionamentos grandes, pois os valores de lotação se mantiveram mais baixos.
+
+Um caso excepcional é a quinta-feira, seu comportamento pode ser explicado analisando a tabela do número de observações de dados. Quinta-feira foi o dia onde o estudo foi finalizado, e nesse dia não foram obtidos valores suficientes.
+
+```{r}
+fluxo_lot %>% 
+  group_by(dia_mes, dia_semana) %>% 
+  summarise(n())
+```
+
 
 ### *Questão 5*
 #### O que está acontecendo.
 
-Com os dados fornecidos, pudemos verificar a relação do fluxo de trânsito com o tempo. Essa relação deveria existir, a priori, se pensarmos em como nós estabelecemos rotinas periódicas comuns na sociedade que ditam a forma (e horário) que executamos nossas tarefas. Ao analisarmos os dados, foi encontramos um maior fluxo nos períodos que concordam com o início e fim dessas rotinas. Aliado a isso, vemos a variação da variável lotação, que indica indiretamente a velocidade dos veículos. Isso nos mostra que quando há um certo fluxo, a lotação varia de certa forma. Essa forma é, porém, não tão previsível, o que causa a engenharia de tráfego, área da engenharia civil que busca aumentar o eficiência do trânsito nas cidades, ser tão complexa e envolver tantos cálculos.
+Com os dados fornecidos, pudemos verificar a relação do fluxo de trânsito com o tempo. Essa relação deveria existir, a priori, se pensarmos em como nós estabelecemos rotinas periódicas comuns na sociedade que ditam a forma (e horário) que executamos nossas tarefas. Ao analisarmos os dados, encontramos um maior fluxo nos períodos que concordam com o início e fim dessas rotinas. Aliado a isso, vemos a variação da variável lotação, que indica indiretamente a velocidade dos veículos. Isso nos mostra que quando há um certo fluxo, a lotação varia de certa forma. Essa forma é, porém, não tão previsível, o que causa a engenharia de tráfego, área da engenharia civil que busca aumentar o eficiência do trânsito nas cidades, ser tão complexa e envolver tantos cálculos.
 
 ## Temperaturas em Berkeley em Janeiro
 
 ### *Questão 1*
 #### Nos últimos seis anos, qual ano teve o janeiro mais quente? Qual ano teve o mais frio?
 
-```{r}
+```{r, echo=FALSE}
 ggplot(janeiro_temps) +
   geom_boxplot(aes(ano,media))
 ```
@@ -84,23 +94,26 @@ ggplot(janeiro_temps) +
 Analisando a distribuição de temperaturas médias, concluimos que o ano de 2008 parece ter o janeiro mais frio, e o de 2009 o janeiro mais quente.
 Analisando as temperaturas máximas e mínimas:
 
-```{r}
+```{r, echo=FALSE}
 ggplot(janeiro_temps) +
   geom_line(aes(dia, max), colour = "orangered") +
-  geom_line(aes(dia, min), colour = "lightslateblue") +
-  facet_wrap(~ ano, nrow = 1)
+  geom_line(aes(dia, min), colour = "darkslategray") +
+  facet_wrap(~ ano, nrow = 1) + 
+  labs(x = "Dia", y = "Máximas e Mínimas")
 ```
 
 O ano de 2009 teve as maiores temperaturas máximas, portanto foi de fato o mais quente.
 O ano de 2007, porém, teve dias com temperaturas mínimas menores que o ano de 2008. Em média, entretanto, ainda podemos dizer que 2008 teve o janeiro mais frio.
 
-```{r, warning=FALSE}
+```{r,echo=FALSE,warning=FALSE}
 janeiro_temps %>% 
   group_by(ano) %>% 
   summarise(media = mean(media)) %>% 
   ggplot() +
     geom_histogram(aes(ano, media, fill = media), stat = "identity") +
-    scale_fill_gradient(high = "#ff5400", low = "#70a2ff")
+    scale_fill_gradient(high = "orangered", low = "darkslategrey") +
+    labs(x = "Ano", y = "Média Mensal", fill = "Média Mensal")
+    
 ```
 
 ### *QUESTÃO*
@@ -114,4 +127,4 @@ janeiro_temps %>%
   summarise(n())
 ```
 
-Podemos verificar que o ano de 2008 teve menos observações.
+Podemos verificar que o ano de 2008 tivera menos observações.
