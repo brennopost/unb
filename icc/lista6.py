@@ -90,17 +90,38 @@ for _ in range(N):
             # cheks if current char is a 'o' above a '.'
             elif N-1 > i and line[i][j] == 'o' and line[i+1][j] == ".":
                 newline[i].append('.')
+
             else:
                 newline[i].append(line[i][j])
     line = newline[:]
 
-for k in newline:
-    for l in k:
-        if l == '*':
-            print('o', end='')
-        else:
-            print(l, end='')
-    print()
+if N > 0:
+    for k in newline:
+        for l in k:
+            if l == '*':
+                print('o', end='')
+            else:
+                print(l, end='')
+        print()
+
+# %% QUESTAO ELASTIMAN!!
+n = int(input())
+setup = []
+for i in range(n):
+    cinput = input()
+    setup.append(list(cinput))
+
+# transpose matrix and reverse
+setup.reverse()
+trans = list(map(list, zip(*setup)))
+
+for i in trans:
+    for j in range(1, n):
+        if i[j] == 'o' and i[j-1] == '.':
+            i.insert(j-1, i.pop(j))
+
+for i in reversed(list(map(list, zip(*trans)))):
+    print("".join(i))
 
 # %% QUESTAO F
 input_string = input().split('_')

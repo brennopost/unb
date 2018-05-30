@@ -14,9 +14,6 @@ library('tidyverse')
 fluxo_lot$faixa <- as.factor(fluxo_lot$faixa)
 levels(fluxo_lot$faixa) <- c('Esquerda','Meio','Direita')
 
-janeiro_temps$media <- (janeiro_temps$media - 32) * (5/9)
-janeiro_temps$min <- (janeiro_temps$min - 32) * (5/9)
-janeiro_temps$max <- (janeiro_temps$max - 32) * (5/9)
 janeiro_temps$ano <- as.factor(janeiro_temps$ano)
 ```
 
@@ -62,8 +59,8 @@ De manhã, podemos verificar que em intervalos de horário como das 8 às 10, da
 #fluxo_lot$dia_semana <- as.factor(fluxo_lot$dia_semana)
 #levels(fluxo_lot$dia_semana) <- c("")
 
-ggplot(fluxo_lot,aes(fluxo, lotacao)) +
-  geom_point() +
+ggplot(fluxo_lot,aes(y=fluxo, x=lotacao)) +
+  geom_point(alpha=0.2) +
   geom_smooth(se = FALSE, method = "loess") +
   facet_wrap(~ dia_semana)
 ```
@@ -97,9 +94,24 @@ ggplot(janeiro_temps) +
 O ano de 2009 teve as maiores temperaturas máximas, portanto foi de fato o mais quente.
 O ano de 2007, porém, teve dias com temperaturas mínimas menores que o ano de 2008. Em média, entretanto, ainda podemos dizer que 2008 teve o janeiro mais frio.
 
-```{r}
-ggplot(janeiro_temps) +
-  geom_line(aes(dia, media), colour = "darkviolet") +
-  facet_wrap(~ ano, nrow = 1)
+```{r, warning=FALSE}
+janeiro_temps %>% 
+  group_by(ano) %>% 
+  summarise(media = mean(media)) %>% 
+  ggplot() +
+    geom_histogram(aes(ano, media, fill = media), stat = "identity") +
+    scale_fill_gradient(high = "#ff5400", low = "#70a2ff")
 ```
 
+### *QUESTÃO*
+#### O computador ao qual o sensor é conectado estava quebrado para alguns dias em janeiro de 
+um ano. Qual ano foi?
+
+Se agruparmos os dados por ano e contar o número de observações
+```{r}
+janeiro_temps %>% 
+  group_by(ano) %>% 
+  summarise(n())
+```
+
+Podemos verificar que o ano de 2008 teve menos observações.
