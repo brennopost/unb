@@ -1,5 +1,6 @@
 # %% QUESTAO 1
 # usando dicionários
+'''
 N = int(input())
 crit = []
 ok = True
@@ -98,9 +99,11 @@ def getWords(inp):
 
 wordList = getWords(text)
 output = []
-for i in set(wordList):
-    output.append(((i), wordList.count(i)))
+for i in wordList:
+    if not any(i in x for x in output):
+        output.append((i, wordList.count(i)))
 
+#for i in output:
 for i in sorted(output, key=lambda tup: tup[1], reverse=True):
     print("{} {}".format(i[0].capitalize(), i[1]))
 
@@ -113,11 +116,9 @@ for i in range(N):
 
 keywords = input().split()
 for i in papers:
-    for j in keywords:
-        if j in i[1]:
+        if any(x in i[1] for x in keywords):
             print(i[0])
 
-# TODO HANDLE MULTIPLE KEYWORDS IN SINGLE STRING
 # %% QUESTAO 7
 X, Y = input().split()
 def ack(x, y):
@@ -136,3 +137,27 @@ plays = []
 for i in range(N):
     player, index = input().split()
     plays.append((player, int(index)))
+
+played = []
+nxt_play = 0
+lst_play = -1
+
+while nxt_play not in played:
+    played.append(lst_play)
+    nxt_play = plays[nxt_play - 1][1]
+    lst_play = nxt_play
+
+print(plays[nxt_play][0])
+'''
+# %% QUESTAO 9
+n = int(input())
+activities = {}
+for i in range(n):
+    name, start, end = input().split()
+    ## TODO verificar até onde é palavra e onde é horário
+    start = start[:2] + start[2:] / 60
+    end = end[:2] + end[2:] / 60
+
+    activities.update({name:[start,end]})
+
+print(activities)
