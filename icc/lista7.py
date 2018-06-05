@@ -1,6 +1,6 @@
 # %% QUESTAO 1
 # usando dicionários
-'''
+
 N = int(input())
 crit = []
 ok = True
@@ -148,16 +148,48 @@ while nxt_play not in played:
     lst_play = nxt_play
 
 print(plays[nxt_play][0])
-'''
+
 # %% QUESTAO 9
+"""
 n = int(input())
 activities = {}
 for i in range(n):
-    name, start, end = input().split()
+    input_string = input()
+    name, start, end = input_string[:-12], input_string[-11:-6], input_string[-5:]
     ## TODO verificar até onde é palavra e onde é horário
-    start = start[:2] + start[2:] / 60
-    end = end[:2] + end[2:] / 60
+    start = int(start[:2]) * 60 + int(start[3:])
+    end = int(end[:2]) * 60 + int(end[3:])
 
     activities.update({name:[start,end]})
 
-print(activities)
+x = {}
+for i in activities:
+    x[i] = [i]
+    for j in activities:
+        if max(activities[j][0], activities[i][0]) > min(activities[j][1], activities[i][1]):
+            x[i].append(j)
+
+print(len(max(x.values(), key=len)))
+for i in max(x.values(), key=len):
+    print(i)
+
+# %% QUESTAO 10
+n = int(input())
+fighters = {}
+
+for i in range(n):
+    id_, fighter = input().split()
+    fighters[id_] = fighter
+
+fights = {}
+while "FINISHHIM" not in fighters:
+    fight = input().split()
+    if fight[0] == "FINISHHIM":
+        fighters[fight[0]] = fighters[fight[1]]
+    else:
+        fighters[fight[0]] = fighters[fight[3]]
+
+print(list(fighters.values()).count(fighters["FINISHHIM"]) - 2)
+#for i in fighters:
+    #if fighters[i] == fighters["FINISHHIM"]:
+        #print("haha")
