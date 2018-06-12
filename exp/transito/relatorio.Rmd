@@ -1,0 +1,118 @@
+---
+title: "Relatório Final"
+author: "Brenno Cordeiro"
+date: "June 11, 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(viridis)
+
+transito <- read_csv("tabela1.csv")
+```
+
+# Relatório Final
+
+%% METODOLOGIA 
+% problemas
+% perguntar o local
+% distância
+% avaliacao do metro e onibus
+
+## Objetivo Geral
+Analisar e estudar os efeitos, caso existam, do tempo gasto no deslocamento até a instituição de ensino no tempo disponível para os estudos
+
+## Meios de transporte
+Para começar a verificar a relação dos alunos da aula de estatística exploratória com o trânsito, podemos primeiro olhar para o meio de transporte.
+
+```{r, echo=FALSE}
+transito %>% 
+  group_by(ida_transporte) %>% 
+  summarise(n())
+```
+
+A maior parte dos alunos usa carro ou ônibus no seu deslocamento diário. Para chegar até a universidade, mais alunos preferem utilizar carro ao ônibus, situação que se inverte na volta. 
+
+Analisando os meios de transporte por área de residência, encontramos associações interessantes. Como era de se esperar, as pessoas que responderam que vão ou voltam a pé ou de bicicleta, moram em Brasília, ou seja, perto da universidade
+```{r, echo=FALSE}
+transito %>% 
+     select(ida_transporte, volta_transporte, resid) %>% 
+     filter(ida_transporte %in% c('A pé', 'Bicicleta') | volta_transporte %in% c('A pé', 'Bicicleta'))
+```
+```{r, echo=FALSE}
+transito %>% 
+     select(ida_transporte, volta_transporte, resid) %>% 
+     filter(ida_transporte %in% c('Metrô') | volta_transporte %in% c('Metrô'))
+```
+% TODO Analise do metro
+
+Podemos ainda verificar como fica a distribuição dos meios de transporte usados para chegar à universidade em cada região admnistrativa. Vamos retirar Brasília da nossa análise inicialmente.
+```{r, echo=FALSE}
+transito %>% 
+  mutate(resid = ifelse( resid %in% c('Asa Norte', 'Asa Sul'), 'Brasília', resid)) %>% 
+  filter(resid != 'Brasília') %>% 
+  ggplot(aes(resid)) +
+    geom_bar(aes(fill = ida_transporte), position = "dodge")+
+    coord_flip()
+```
+% TODO!! ANALISE
+
+
+```{r}
+transito %>% 
+  mutate(dist = ifelse(dist == 10.8, 5, dist)) %>% 
+  group_by(volta_transporte) %>% 
+  summarise(dist_media = mean(dist))
+```
+
+Com relação às distâncias, pode-se observar uma maior distância média dos usuários de transporte público de sua residência à universidade. Entretanto, verificar a distância média pode esconder informações, já que a média não representa todos os dados e é afetada por valores extremos. Considerando apenas os meios de transporte mais utilizados, encontramos mais informações.
+```{r}
+transito %>% 
+  gather(ida_transporte, volta_transporte, key = tipo, value = meio) %>% 
+  filter(meio %in% c("Ônibus", "Metrô", "Carro")) %>% 
+  mutate(dist = ifelse(dist == 10.8, 5, dist)) %>% 
+  ggplot() + 
+    geom_boxplot(aes(reorder(meio, dist, FUN = median ), dist)) +
+    facet_wrap(~ tipo)
+```
+Encontramos uma alta variabilidade de distância nos dados referentes ao uso de carro e ônibus tanto na ida quanto na volta. Vale ressaltar que na observação dos gráfico pode-se notar que grande parte das pessoas usam o mesmo meio de transporte no seu trajeto diário à universidade.
+
+
+```{r, echo=FALSE}
+transito$avaliacao <- as_factor(transito$avaliacao)
+transito$avaliacao <- factor(transito$avaliacao, levels = c('Muito ruim', 'Ruim', 'Regular', 'Bom', 'Muito bom'))
+```
+```{r}
+transito %>%
+  gather(ida_transporte, volta_transporte, key = type, value = meio) %>% 
+  filter(is.na(avaliacao) != TRUE, meio %in% c('Ônibus', 'Metrô')) %>% 
+  ggplot(aes(avaliacao)) +
+    geom_bar(aes(color = meio),position = "dodge") +
+    facet_wrap(~type)
+```
+```{r}
+av <- transito %>%
+  filter(is.na(avaliacao) != TRUE) %>% 
+  ggplot(aes(avaliacao)) +
+    geom_bar(aes(fill = avaliacao))
+```
+Em relação à qualidade do transporte público, podemos ver que a avaliação dos estudantes apresenta uma distribuição simétrica, com maior frequência da avaliação **regular** e menor frequência das avaliações extremas. 
+
+## Subtitulo
+
+```{r, echo=FALSE}
+transito %>% 
+  select(ida_tempo, volta_tempo) %>% 
+  mutate(transito_tempo = (ida_tempo + volta_tempo)) %>% 
+  gather(`ida_tempo`, `volta_tempo`, key=tipo, value=tempo) %>% 
+  ggplot() +
+    geom_boxplot(aes(tipo, tempo))
+```
+
+A partir do gráfico 1*, podemos comparar a distribuição de dois conjuntos de dados: o tempo médio que os estudante levam até chegar na universidade, e o tempo médio que levam para chegar no local de interesse após a saída da universidade. No primeiro conjunto, podemos verificar uma simetria e uma menor variabilidade se comparada ao segundo conjunto. De fato, se levarmos em conta a medida do coeficiente de variação, obtemos um valor de `0.52` para o primeiro conjunto, e `0.56`. A diferença é sútil, mas nos mostra também que ambos conjuntos são heterogêneos. Podemos verificar ainda a existência valores extremos no segundo conjunto de dados, como indício da maior variância. % TODO Perguntar isso pra prof ou pro monitor
+
+Analisando mais a fundo os quartis do nosso conjunto de dados, podemos verificar que metade dos alunos precisam de pelo menos 50 minutos para chegar a universidade. Para 25\% dos alunos, esse valor é de pelo menos 1 hora e 15 minutos.
+Para sair da universidade, metade dos nossos alunos levam mais de 1 hora para chegar no seu local de interesse. No geral, em média, o aluno da UnB passa 1 hora e 50 minutos no trânsito diariamente.
+

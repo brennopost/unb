@@ -116,9 +116,8 @@ janeiro_temps %>%
     
 ```
 
-### *QUESTÃO*
-#### O computador ao qual o sensor é conectado estava quebrado para alguns dias em janeiro de 
-um ano. Qual ano foi?
+### *QUESTÃO 2*
+#### O computador ao qual o sensor é conectado estava quebrado para alguns dias em janeiro de um ano. Qual ano foi?
 
 Se agruparmos os dados por ano e contar o número de observações
 ```{r}

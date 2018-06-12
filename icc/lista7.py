@@ -150,24 +150,31 @@ while nxt_play not in played:
 print(plays[nxt_play][0])
 
 # %% QUESTAO 9
-"""
 n = int(input())
 activities = {}
 for i in range(n):
     input_string = input()
     name, start, end = input_string[:-12], input_string[-11:-6], input_string[-5:]
-    ## TODO verificar até onde é palavra e onde é horário
+
     start = int(start[:2]) * 60 + int(start[3:])
     end = int(end[:2]) * 60 + int(end[3:])
 
     activities.update({name:[start,end]})
 
+# max(activities[j][0], activities[i][0]) > min(activities[j][1], activities[i][1])
+# Se true, n tem interseção
+# def inter(x):
+#   return max(list(zip(*x))[0]) > min(list(zip(*x))[1])
+# for i in range(1,len(a)+1):
+#   b.extend(itertools.combinations(a,i))
+
+def inter(x,y):
+    return max(x[0], y[0]) < min(x[1], y[1])
+
 x = {}
 for i in activities:
-    x[i] = [i]
-    for j in activities:
-        if max(activities[j][0], activities[i][0]) > min(activities[j][1], activities[i][1]):
-            x[i].append(j)
+    for j in range(len(activities)):
+
 
 print(len(max(x.values(), key=len)))
 for i in max(x.values(), key=len):

@@ -1,0 +1,61 @@
+ida_transporte,volta_transporte,avaliacao,resid,dist,ida_tempo,volta_tempo,cred,estudo,ativ,sono,prod,prod_tempo
+Ônibus,Ônibus,Bom,Cruzeiro,9.60,00:40:00,00:40:00,24,04:00:00,00:00:00,07:00:00,Na UnB (biblioteca e afins),12
+Metrô,Carro,Ruim,Taguatinga,27.00,1:20:00,1:00:00,24,3:00:00,1:00:00,6:00:00,Na UnB (biblioteca e afins),0
+Ônibus,Ônibus,Bom,Cruzeiro,9.60,0:40:00,0:40:00,24,4:00:00,1:00:00,6:00:00,Em casa,18
+Carro,Ônibus,Regular,Guará 2,21.60,0:40:00,1:20:00,24,0:03:00,0:00:00,08:00:00,Em casa,12
+A pé,Ônibus,Muito bom,Brasília ,10.80,0:30:00,0:30:00,24,04:00:00,0:01:00,7:00:00,Na UnB (durante a aula),6
+Carro,Ônibus,Regular,Brasília,10.80,0:26:38,0:25:00,16,4:00:00,9:00:00,6:00:00,Em casa,6
+Carro,Carro,Bom,Taguatinga,27.20,0:50:00,0:50:00,24,3:00:00,0:30:00,8:00:00,Na UnB (durante a aula),6
+Ônibus,Ônibus,Bom,Santa maria ,37.00,1:15:26,1:37:14,24,5:12:23,0:25:00,5:14:00,Em casa,18
+Metrô,Metrô,Bom,Taguatinga ,27.20,1:10:00,1:10:00,24,3:00:00,3:00:00,8:00:00,Na UnB (biblioteca e afins),6
+Carro,Carro,Ruim,Taguatinga,27.20,0:40:00,0:40:00,24,1:00:00,0:00:00,8:00:00,Na UnB (durante a aula),6
+Ônibus,Ônibus,Bom,São Sebastião,22.1,1:20:00,1:40:00,24,1:30:00,1:00:00,6:00:00,Na UnB (durante a aula),6
+Carro,Ônibus,Bom,Sobradinho,19.40,0:40:00,1:00:00,24,6:00:00,2:00:00,6:00:00,Em casa,12
+Carro,Carro,,Brasília,10.80,0:40:00,0:25:00,24,1:00:00,2:00:00,6:00:00,Em casa,12
+Carro,Carro,,Brasília,10.80,0:15:00,0:15:00,24,6:00:00,0:30:00,7:30:00,Em casa,18
+Ônibus,Ônibus,Regular,Ceilândia ,35.80,1:30:00,1:00:00,18,5:30:32,2:00:00,5:30:00,Em casa,18
+Carro,Carro,,Brasília ,10.80,0:20:00,0:30:00,24,1:30:00,3:00:00,7:00:00,Em casa,12
+Ônibus,Ônibus,Regular,São Sebastião,22.1,1:10:00,1:30:00,24,5:00:00,7:00:00,5:00:00,Na UnB (biblioteca e afins),6
+Metrô,Carro,Regular,Taguatinga,27.20,1:00:00,1:00:00,24,4:00:00,0:00:00,7:00:00,Em casa,6
+Carro,Carro,,Brasília,10.80,0:12:00,0:15:00,12,2:00:00,9:00:00,6:00:00,Em casa,6
+Ônibus,Ônibus,Muito ruim,Taguatinga,27.20,1:00:00,1:00:00,24,0:20:00,0:00:00,8:00:00,Na UnB (durante a aula),6
+Bicicleta,Bicicleta,,Asa Norte,5.00,0:30:00,0:30:00,18,1:00:00,2:00:00,8:00:00,Na UnB (durante a aula),12
+Ônibus,Ônibus,Ruim,Recanto das Emas,37.10,1:35:00,1:20:00,24,0:20:00,0:00:00,6:00:00,Em casa,6
+Carro,Carro,,Asa Norte ,5.00,0:10:00,0:15:00,10,1:00:00,10:00:00,8:00:00,Na UnB (durante a aula),6
+Ônibus,Ônibus,Ruim,Ceilândia,35.80,1:30:00,2:00:00,24,3:00:00,1:20:00,6:00:00,Em casa,18
+Carro,Carro,,Guará,18.00,0:25:00,0:25:00,16,2:00:00,6:00:00,8:00:00,Em casa,6
+Ônibus,Ônibus,Regular,Taguatinga ,27.20,1:30:00,1:30:00,24,3:00:00,0:00:00,7:00:00,Na UnB (durante a aula),6
+Carro,Ônibus,Regular,Brasília ,10.80,1:00:00,1:00:00,24,0:30:00,1:00:00,8:00:00,Na UnB (durante a aula),6
+Carro,A pé,,Brasília,10.80,0:10:00,0:35:00,24,3:00:00,1:00:00,9:00:00,Em casa,12
+Metrô,Metrô,Ruim,Samambaia,33.60,0:50:00,1:00:00,30,3:00:00,0:00:00,5:00:00,Em casa,0
+Ônibus,Ônibus,Muito bom,Recanto das Emas,37.10,1:40:00,2:00:00,24,2:00:00,1:00:00,8:00:00,Na UnB (biblioteca e afins),6
+Carro,Carro,,Águas Claras,25.80,1:00:00,0:30:00,24,0:30:00,1:00:00,7:00:00,Na UnB (biblioteca e afins),12
+Ônibus,Ônibus,Regular,Cruzeiro,13.00,0:45:00,1:00:00,24,2:00:00,0:00:00,6:00:00,Na UnB (biblioteca e afins),6
+Metrô,Metrô,Bom,Taguatinga,27.20,1:20:00,1:00:00,24,4:00:00,1:00:00,6:00:00,Na UnB (biblioteca e afins),6
+Carro,Ônibus,Regular,Sobradinho,19.40,0:50:00,1:00:00,18,1:00:00,5:00:00,6:00:00,Em casa,18
+Carro,Carro,,Asa Sul,10.50,0:30:00,0:40:00,30,5:00:00,1:00:00,5:00:00,Na UnB (durante a aula),6
+Ônibus,Ônibus,Regular,Brasília ,10.80,1:00:00,1:00:00,24,5:00:00,1:00:00,6:00:00,Na UnB (durante a aula),6
+A pé,A pé,,Brasília,10.80,0:30:00,0:30:00,24,2:00:00,0:00:00,6:00:00,Na UnB (durante a aula),6
+Ônibus,Ônibus,Regular,Brasília,10.80,0:20:00,0:40:00,16,3:30:00,8:00:08,5:00:00,Na UnB (biblioteca e afins),18
+Metrô,Metrô,Regular,Águas Claras,25.80,1:30:00,1:00:00,18,4:00:00,1:30:00,5:00:00,Em casa,18
+Carro,Carro,Bom,Águas Claras,25.80,1:00:00,1:00:00,6,0:30:00,8:00:00,7:00:00,Em casa,18
+Metrô,Metrô,Regular,Ceilândia,35.80,1:20:00,1:00:00,18,2:00:00,2:00:00,8:00:00,Em casa,12
+Ônibus,Ônibus,Bom,Recanto das Emas,37.10,2:00:00,3:00:00,24,0:30:00,5:00:00,6:00:00,Na UnB (durante a aula),12
+Carro,Carro,,Sobradinho ,19.40,0:25:00,0:25:00,24,2:00:00,0:00:00,6:00:00,Em casa,12
+Ônibus,Ônibus,Regular,São Sebastião,22.1,1:00:00,1:30:00,22,1:00:00,4:30:00,6:30:00,Na UnB (biblioteca e afins),6
+Carro,Carro,,Brasília,10.80,0:20:00,0:23:00,24,1:00:00,0:00:00,8:00:00,Em casa,18
+Carro,Ônibus,Bom,Brasília ,10.80,1:00:00,1:00:00,24,1:00:00,1:00:00,8:00:00,Na UnB (durante a aula),6
+Ônibus,Ônibus,Regular,São Sebastião,22.10,1:30:00,1:30:00,18,2:00:00,0:00:00,10:00:00,Na UnB (biblioteca e afins),12
+Ônibus,Ônibus,Ruim,Brasília ,10.80,0:30:00,0:40:00,24,3:00:00,1:00:00,8:00:00,Na UnB (biblioteca e afins),12
+Ônibus,Ônibus,Regular,Mangueiral,19.30,0:40:00,0:30:00,24,2:00:00,1:00:00,7:00:00,Em casa,0
+Carro,Carro,,Guará,18.00,0:15:00,0:20:00,14,,6:00:00,8:00:00,Na UnB (biblioteca e afins),12
+Carro,Carro,Ruim,Mangueiral,19.30,0:30:00,0:40:00,24,4:00:00,4:00:00,5:00:00,Na UnB (biblioteca e afins),12
+Carro,Ônibus,Regular,Planaltina,39.30,0:40:00,2:00:00,24,6:00:00,5:00:00,7:00:00,Na UnB (biblioteca e afins),12
+Carro,Carro,Ruim,Mangueiral,19.30,0:30:00,0:40:00,24,4:00:00,4:00:00,5:00:00,Na UnB (biblioteca e afins),12
+Carro,Carro,,Samambaia,33.60,1:15:00,0:40:00,0,2:00:00,8:00:00,6:00:00,Em casa,6
+Bicicleta,Bicicleta,,Asa Norte,5.00,0:50:00,0:40:00,24,2:00:00,4:00:00,6:00:00,Em casa,18
+Carro,Carro,,Brasília,10.80,0:15:00,0:15:00,24,7:00:00,0:30:00,7:00:00,Em casa,18
+Ônibus,Carro,Ruim,Águas Lindas,54.30,1:10:00,1:40:00,24,2:00:00,1:00:00,7:00:00,Na UnB (biblioteca e afins),0
+Carro,Carro,,São Sebastião,22.10,1:00:00,1:20:00,16,2:00:00,1:00:00,9:00:00,Em casa,6
+Metrô,Metrô,Bom,Taguatinga,27.20,1:30:00,1:00:00,24,2:00:00,1:00:00,6:00:00,Em casa,0
+Ônibus,Carro,Ruim,Taguatinga,27.20,1:20:00,1:00:00,24,3:00:00,2:00:00,5:00:00,Na UnB (durante a aula),6
