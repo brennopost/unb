@@ -21,6 +21,7 @@ transito2 <- read_csv("tabela2.csv")
 % perguntar o local
 % distância
 % avaliacao do metro e onibus
+% alguém respondeu 0 em cred
 
 ## Objetivo Geral
 Analisar e estudar os efeitos, caso existam, do tempo gasto no deslocamento até a instituição de ensino no tempo disponível para os estudos
@@ -105,9 +106,10 @@ Se considerarmos apenas os usuários de metrô, a distribuição se torna difere
 ## Tempo no Trânsito
 
 ```{r, include=FALSE}
-transito_tempo <- transito %>%
-     mutate(tempo = ida_tempo + volta_tempo) %>% 
-     pull(tempo)
+transito <- transito %>%
+  mutate(tempo = (ida_tempo + volta_tempo)/60)
+  
+transito_tempo <- as.numeric(pull(transito, tempo))
 ```
 
 ```{r, echo=FALSE}
@@ -119,10 +121,114 @@ transito %>%
     geom_boxplot(aes(tipo, tempo))
 ```
 
-A partir do gráfico 1*, podemos comparar a distribuição de dois conjuntos de dados: o tempo médio que os estudante levam até chegar na universidade, e o tempo médio que levam para chegar no local de interesse após a saída da universidade. No primeiro conjunto, podemos verificar uma simetria e uma menor variabilidade se comparada ao segundo conjunto. De fato, se levarmos em conta a medida do coeficiente de variação, obtemos um valor de 0.52 para o primeiro conjunto, e 0.56. A diferença é sútil, mas nos mostra também que ambos conjuntos são heterogêneos. Podemos verificar ainda a existência valores extremos no segundo conjunto de dados, como indício da maior variância. % TODO Perguntar isso pra prof ou pro monitor
+A partir do gráfico 1*, podemos comparar a distribuição de dois conjuntos de dados: o tempo que os estudante levam até chegar na universidade, e o tempo que levam para chegar no local de interesse após a saída da universidade. No primeiro conjunto, podemos verificar uma simetria e uma menor variabilidade se comparada ao segundo conjunto. De fato, se levarmos em conta a medida do coeficiente de variação, obtemos um valor de 0.52 para o primeiro conjunto, e 0.56. A diferença é sútil, mas nos mostra também que ambos conjuntos são heterogêneos. Podemos verificar ainda a existência valores extremos no segundo conjunto de dados, como indício da maior variância. % TODO Perguntar isso pra prof ou pro monitor
 
-Analisando mais a fundo os quartis do nosso conjunto de dados, podemos verificar que metade dos alunos precisam de pelo menos 50 minutos para chegar a universidade. Para 25% dos alunos, esse valor é de pelo menos 1 hora e 15 minutos.
-Para sair da universidade, metade dos nossos alunos levam mais de 1 hora para chegar no seu local de interesse. No geral, em média, o aluno da UnB passa 1 hora e 50 minutos no trânsito diariamente e o tempo .
+As altas variabiidades dos dados é provavelmente decorrente da escolha de meio de transporte e da residência de cada indivíduo. Vamos separar os dados por essas variáveis mais a frente. %Se separarmos os dados por essas variáveis, verificamos dados mais homogêneos:...
+
+Analisando mais a fundo os quartis do nosso conjunto de dados, podemos verificar que metade dos alunos precisam de pelo menos 50 minutos para chegar a universidade. Para 20% dos alunos, esse valor é de pelo menos 1 hora e 20 minutos.
+Para sair da universidade, metade dos nossos alunos levam mais de 1 hora para chegar no seu local de interesse. No geral, em média, o aluno da UnB passa 1 hora e 50 minutos no trânsito diariamente, %com desvio padrão de 50 minutos%. 40% dos alunos passam mais de 2 horas diárias no trânsito e 20% passam mais de 2 horas e 30 minutos. 
+
+Esses dados nos permite estimar que estudante da UnB perde cerca de 10 dias por ano no trânsito. Isso não só representa um intervalo de tempo gasto na nossa rotina, como tras consigo riscos a saúde. Passar mais de 30 minutos no trânsito {na ida e na volta} está relacionado com maiores níveis de stress e ansiedade[3] %se comparado...%, e  também pode trazer maior risco de pre-diabetes, diabetes, doenças cardíacas e depressão[4].
+
+Como mostra o gráfico x, o meio de transporte mais rápido, em  média, para se chegar a universidade é a pé, enquato o meio mais demorado, em média, é o metrô. Entretanto, os alunos que pegam somente ônibus passam mais tempo no trânsito diariamente, cerca de 2 horas e 26 minutos, e 25% deles passam 3 horas ou mais no trânsito diariamente. Para quem usa apenas metrô, 75% fica mais de 2 horas e 20 minutos diários no "commuting". %calcular coeficientes de variância
+```{r}
+transito %>% 
+  gather(ida_transporte, volta_transporte, key=tipo, value=Meio) %>% 
+  mutate(tempo = ifelse(tipo == "ida_transporte", ida_tempo, volta_tempo)) %>% 
+  group_by(Meio, tipo) %>% 
+  summarise(tempo = mean(tempo/60)) %>% 
+  #spread(key=tipo, value = tempo)
+  ggplot() +
+    geom_bar(aes(Meio, tempo, fill=tipo), stat="identity", position = "dodge")
+```
+```{r}
+transito %>% 
+  gather(ida_transporte, volta_transporte, key=tipo, value=Meio) %>% 
+  mutate(tempo = ifelse(tipo == "ida_transporte", ida_tempo, volta_tempo),
+         tipo = ifelse(tipo == "ida_transporte", "Ida", "Volta")) %>% 
+  ggplot() +
+    geom_boxplot(aes(Meio, tempo)) +
+    facet_wrap(~ tipo)
+```
+
+No gráfico x.1, obtemos a distribuição do %tempo de chegada?% de cada local de residência. Podemos observar indícios de uma forte relação entre o tempo que se leva pra chegar na universidade e o local de residência dos estudantes, como era de se esperar. Surpreendente, os moradores do Guará são os que levam menos tempo, em média, para chegar a universidade. Os moradores do Recanto das Emas são os que mais demoram para chegar a universidade, onde o tempo mínimo observado foi de 1 hora e 35 minutos, e a média foi de 1 hora e 45 minutos diários.
+
+Analogamente, temos no gŕafico x.2 a distribuição do %tempo de saída?% de cada local de residência. Novamente é possível observar indícios de uma forte realção entre as duas variáveis. Os extremos observados anteriormente se preservaram, mas a distribuição de diversos locais mudou bastante, ~o que pode indicar que o tempo de locomoção entre os diversos locais varia conforme o horário~.
+
+```{r}
+transito %>%
+  mutate(resid = ifelse( resid %in% c('Asa Norte', 'Asa Sul'), 'Brasília', resid)) %>%
+  ggplot(aes(x = reorder(resid, ida_tempo, FUN = mean), y = ida_tempo)) +
+    geom_boxplot() +
+    coord_flip()
+```
+```{r}
+transito %>%
+  mutate(resid = ifelse( resid %in% c('Asa Norte', 'Asa Sul'), 'Brasília', resid)) %>%
+  ggplot(aes(x = reorder(resid, volta_tempo, FUN = mean), y = volta_tempo)) +
+    geom_boxplot() +
+    coord_flip()
+```
+
+Outra forma de verificar a relação acima é observando o gráfico x.3, que demonstra a relação entre o tempo no trânsito e a distância média das cidades até a UnB. %Calcular coeficientes de correlação
+```{r, message=FALSE}
+ggplot(transito, aes(dist, tempo)) + 
+  geom_point()
+```
+
+## Tempo gasto no trânsito vs o resto do tempo
+```{r}
+transito <- transito %>% 
+  mutate(cred = ifelse(cred < 6, NA, cred))
+
+creditos <- transito %>% 
+  filter(is.na(cred) == FALSE) %>% 
+  pull(cred)
+```
+
+Uma relação relevante que devemos analisar é a relação entre o tempo gasto no trânsito e o tempo gasto na universidade. Para começar a estudar essa relação, vamos observar a distribuição da variável créditos no semestre atual, que indica indiretamente as horas*aula semanais dos estudantes. A média de créditos das nossas observações tem média de 22,1 e coeficiente de variação de aproximadante 0,197, mostrando dados um pouco homogêneos. A maioria dos nossos estudantes, 42 deles, tem 24 cŕeditos nesse semestre.
+
+Agora que tomamos conhecimento da variável créditos no semestre atual, vamos analisar sua relação com a variável tempo gasto no trânsito semanalmente. Como podemos observar no gráfico, as duas variáveis parecem não ter relação. %Calcular coeficiente de correlação. Porém, se levarmos em conta que a variável créditos representa indiretamente as horas*aulas semanais dos estudantes, podemos obter um novo conjunto de dados, que é a razão entre essas duas variáveis.
+
+Para nosso novo conjunto de dados, a razão entre horas no trânsito e horas em aula, conseguimos obter informações pertinentes. Primeiramente, é possível ver que esse conjunto aparenta ter uma assimetria a direita e uma alta variabilidade. De fato, os dados possuem um coeficiente de assimetria %Calcular e um coeficiente de variação de 0,61, confirmando nossas hipóteses. O mais interessante desses dados, entretanto, é o que eles "falam?". 50% dos nossos alunos ficam 30 minutos no trânsito para cada hora de aula. Para 20% deles a razão é de 50 minutos no trânsito para cada hora de aula, e para 10%, 1 hora no trânsito para cada hora aula. A média é de 36 minutos no trânsito para cada hora de aula.
+
+$REFAZ ESSE PARAGRAFO PF THIAGO: Como estudante universitários, nosso foco principal são os estudos, e é assustador observar que em média, para assistir a duas aulas na universidade, levamos em média 2 horas e 40 minutos na locomoção...
+```{r, message=FALSE, warning=FALSE}
+transito %>% 
+  mutate(tempo = tempo * 7) %>% 
+  ggplot(aes(cred, tempo)) + 
+    geom_point()
+```
+```{r, message=FALSE, warning=FALSE}
+transito %>% 
+  filter(is.na(cred) == FALSE) %>%
+  mutate(razao = tempo / (cred * 60 / 7)) %>% 
+  ggplot(aes("", y = razao)) +
+    geom_boxplot() +
+    coord_flip()
+```
+
+```{r, message=FALSE, warning=FALSE}
+transito %>% 
+  filter(is.na(cred) == FALSE) %>%
+  mutate(razao = tempo / (cred * 60 / 7)) %>%
+  ggplot(aes(razao)) +
+    geom_histogram()
+```
 
 
 
+
+
+
+# Bibliografia
+
+links bons
+http://time.com/9912/10-things-your-commute-does-to-your-body/
+https://istoe.com.br/233957_TEMPO+MEDIO+GASTO+NO+TRANSITO+NO+BRASIL+CRESCE+20+EM+7+ANOS/
+https://www.prodoscore.com/blog/harmful-impact-commuting
+
+[1] http://www.saa.unb.br/images/stories/documentos/calendarios/graduacao/cal_atividades/calendario_atividade_1_2018.pdf
+[1.1] http://www.jornaldebrasilia.com.br/cidades/em-media-brasiliense-perde-40-dias-por-ano-no-transito/
+[3] http://webarchive.nationalarchives.gov.uk/20160105231823/http://www.ons.gov.uk/ons/rel/wellbeing/measuring-national-well-being/commuting-and-personal-well-being--2014/art-commuting-and-personal-well-being.html
+[4] https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3360418/
