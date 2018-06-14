@@ -33,6 +33,7 @@ cv <- function(arg){
 % distância
 % avaliacao do metro e onibus
 % alguém respondeu 0 em cred
+% esquecemos de perguntar o turno de estudo
 
 ## Objetivo Geral
 Analisar e estudar os efeitos, caso existam, do tempo gasto no deslocamento até a instituição de ensino no tempo disponível para os estudos
@@ -110,7 +111,7 @@ transito %>%
   group_by(avaliacao) %>% 
   summarise(n())
 ```
-Se considerarmos apenas os usuários de metrô, a distribuição se torna diferente. Não ouveram respostas no extremos, e mais pessoas responderam "Bom" do que "Ruim", o que nos leva a acreditar que o metrô se encontra em boa qualidade.
+Se considerarmos apenas os usuários de metrô, a distribuição se torna diferente. Não houveram respostas no extremos, e mais pessoas responderam "Bom" do que "Ruim", o que nos leva a acreditar que o metrô se encontra em boa qualidade.
 
 ## Tempo no Trânsito
 
@@ -141,7 +142,7 @@ Para sair da universidade, metade dos nossos alunos levam mais de 1 hora para ch
 Esses dados nos permite estimar que estudante da UnB perde cerca de 10 dias por ano no trânsito. Isso não só representa um intervalo de tempo gasto na nossa rotina, como tras consigo riscos a saúde. Passar mais de 30 minutos no trânsito {na ida e na volta} está relacionado com maiores níveis de stress e ansiedade[3] %se comparado...%, e  também pode trazer maior risco de pre-diabetes, diabetes, doenças cardíacas e depressão[4].
 
 Como mostra o gráfico x, o meio de transporte mais rápido, em  média, para se chegar a universidade é a pé, enquato o meio mais demorado, em média, é o metrô. Entretanto, os alunos que pegam somente ônibus passam mais tempo no trânsito diariamente, cerca de 2 horas e 26 minutos, e 25% deles passam 3 horas ou mais no trânsito diariamente. Para quem usa apenas metrô, 75% fica mais de 2 horas e 20 minutos diários no "commuting". %calcular coeficientes de variância
-```{r}
+```{r, fig.width=4,fig.show="hold"}
 transito %>% 
   gather(ida_transporte, volta_transporte, key=tipo, value=Meio) %>% 
   mutate(tempo = ifelse(tipo == "ida_transporte", ida_tempo, volta_tempo)) %>% 
@@ -165,7 +166,7 @@ No gráfico x.1, obtemos a distribuição do %tempo de chegada?% de cada local d
 
 Analogamente, temos no gŕafico x.2 a distribuição do %tempo de saída?% de cada local de residência. Novamente é possível observar indícios de uma forte realção entre as duas variáveis. Os extremos observados anteriormente se preservaram, mas a distribuição de diversos locais mudou bastante, ~o que pode indicar que o tempo de locomoção entre os diversos locais varia conforme o horário~.
 
-```{r, fig.height=4, fig.width=3, fig.show=hold}
+```{r, fig.height=4, fig.width=3, fig.show="hold"}
 transito %>%
   mutate(resid = ifelse( resid %in% c('Asa Norte', 'Asa Sul'), 'Brasília', resid)) %>%
   ggplot(aes(x = reorder(resid, ida_tempo, FUN = mean), y = ida_tempo)) +
@@ -226,6 +227,12 @@ transito %>%
 ```
 
 
+## Prod
+
+```{r}
+transito$prod_tempo <- as.factor(transito$prod_tempo)
+levels(transito$prod_tempo) = c("Madrugada", "Manhã", "Tarde", "Noite")
+```
 
 
 
