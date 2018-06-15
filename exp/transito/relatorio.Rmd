@@ -3,6 +3,7 @@ title: "Relatório Final"
 author: "Brenno Cordeiro"
 date: "June 11, 2018"
 output: pdf_document
+lang: "pt"
 ---
 
 ```{r setup, include=FALSE}
@@ -38,42 +39,62 @@ cv <- function(arg){
 % alguém tem o dia de mais de 24horas
 % tempo como data type
 
+## Metodologia
+
+
 ## Objetivo Geral
 Analisar e estudar os efeitos, caso existam, do tempo gasto no deslocamento até a instituição de ensino no tempo disponível para os estudos
 
 ## Meios de transporte
-Para começar a verificar a relação dos alunos da aula de estatística exploratória com o trânsito, podemos primeiro olhar para o meio de transporte.
+Para começar a verificar a relação dos alunos da aula de estatística exploratória com o trânsito, podemos primeiro olhar para o meio de transporte utilizado pelos alunos para sua locomoção diária.
 
-```{r, echo=FALSE}
-transito %>%
+```{r, include=TRUE}
+table1 <- transito %>%
   gather(ida_transporte, volta_transporte, key=tipo, value=Meio) %>% 
   group_by(Meio) %>% 
   summarise(Ida = sum(tipo == 'ida_transporte'), Volta = sum(tipo == 'volta_transporte'))
 ```
 
-A maior parte dos alunos usa carro ou ônibus no seu deslocamento diário. Para chegar até a universidade, mais alunos preferem utilizar carro ao ônibus, situação que se inverte na volta. 
+|           | Ida | Volta |   |
+|-----------|-----|-------|---|
+| A pé      | 2   | 2     |   |
+| Bicicleta | 2   | 2     |   |
+|  Carro    | 27  | 23    |   |
+| Metrô     | 8   | 6     |   |
+| Ônibus    | 21  | 27    |   |
+Table: Meio de transporte utilizado pelos alunos para chegar e sair da universidade.
 
-```{r meio_local, fig.width=5}
+A maior parte dos alunos usa carro ou ônibus no seu deslocamento diário. Para chegar até a universidade, mais alunos preferem utilizar carro ao ônibus, situação que se inverte na volta. O meio de transporte é bem variado, com coeficiente de variação de 0,95.
+
+```{r meio_local, fig.width=5, fig.cap="Distribuição de frequência do meio de transporte utilizado em cada local de residência"}
 transito2 %>%
-  mutate(resid = ifelse( resid %in% c('Asa Norte', 'Asa Sul'), 'Brasília', resid),
-         resid = ifelse( resid %in% c('Brasília', 'Taguatinga', 'São Sebastião'), resid, 'Outros')) %>%
+  mutate(resid = ifelse( resid %in% c('Asa Norte', 'Asa Sul'), 'Brasília', resid)) %>% 
+         #resid = ifelse( resid %in% c('Brasília', 'Taguatinga', 'São Sebastião'), resid, 'Outros')) %>%
   group_by(meio, resid) %>% 
+  filter(meio == "Carro") %>% 
   summarise(n = n()) %>% 
   ggplot() +
     geom_point(aes(meio, reorder(resid, n, FUN = sum), size = n, color = n)) + 
-    scale_color_viridis(limits=c(0,15), breaks = seq(15,0,-5)) +
-    scale_size_continuous(limits=c(0,15), breaks = seq(15,0,-5)) +
+    scale_color_viridis( breaks = seq(15,0,-2.5)) +
+    scale_size_continuous( breaks = seq(15,0,-2.5)) +
     guides(color= guide_legend(), size=guide_legend()) +
     labs(x = "Meio de Transporte", y = "Local de Residência", color = "Quantidade", size = "Quantidade")
 ```
-Analisando os meios de transporte por área de residência, encontramos associações interessantes. Como era de se esperar, as pessoas que responderam que vão ou voltam a pé ou de bicicleta, moram em Brasília, ou seja, perto da universidade. Já para os usuários de metrô, 62% moram em Taguatinga. %Incluir mais analise
+Analisando os meios de transporte por área de residência na Figura \ref{fig:meio_local}, encontramos associações interessantes. Como era de se esperar, as pessoas que responderam que vão ou voltam a pé ou de bicicleta, moram em Brasília, ou seja, perto da universidade. Já para os usuários de metrô, 62% moram em Taguatinga. Quanto aos usuários de ônibus, um quarto mora em Brasília. Para os que usam carro, a maioria é novamente de Brasília. 
 
-```{r, echo=FALSE}
+```{r, include=FALSE}
 transito %>% 
   mutate(dist = ifelse(dist == 10.8, 5, dist)) %>% 
   group_by(volta_transporte) %>% 
   summarise(dist_media = mean(dist))
 ```
+|           | Distância |   |   |
+|-----------|-----------|---|---|
+| A pé      | 2         |   |   |
+| Bicicleta | 2         |   |   |
+|  Carro    | 27        |   |   |
+| Metrô     | 8         |   |   |
+| Ônibus    | 21        |   |   |
 
 Com relação às distâncias, pode-se observar uma maior distância média dos usuários de transporte público de sua residência à universidade. Entretanto, verificar a distância média pode esconder informações, já que a média não representa todos os dados e é afetada por valores extremos. Considerando apenas os meios de transporte mais utilizados, encontramos mais informações.
 
@@ -238,7 +259,7 @@ transito %>%
     scale_x_continuous(breaks = seq(0, 10, 1))
 ```
 
-Uma última forma interessante de analisar como o tempo dos nossos estudantes é utilizado é admnistrado é verificando quanto tempo passam dormindo. Dessa vez, temos evidências de uma distribuição menos variada, porém, ainda pouco simétrica. Na verdade, temos um coeficiente de variação de 0,18 e um coeficiente de assimetria %de pilson% de -0,05, mostrando que os dados não são exatamente homogêneos e bem mais simétricos do que aparentam. A maior parte dos alunos, quase um terço deles, dorme 6 horas por dia, seguido pelos que dormem 8 horas, que representam um quarto dos dados. Em média, os alunos da universidade têm 6 horas e 43 minutos de sono diário, bem menos que a média nacional, de 7 horas e 36 minutos [5]. Na verdade, metade dos nosso alunos responderam dormir menos de 6 horas e 45 minutos, o que é abaixo do recomendado, entre 7 e 9 horas [6], o que pode trazer diversos riscos a saúde e principalmente a cognição [7]. Apenas cerca de um terço dos nossos alunos está dormindo acima do recomendado e um quarto deles dorme 8 horas ou mais por dia.
+Uma última forma interessante de analisar como o tempo dos nossos estudantes é admnistrado é verificando quanto tempo passam dormindo. Dessa vez, temos evidências de uma distribuição menos variada, porém, ainda pouco simétrica. Na verdade, temos um coeficiente de variação de 0,18 e um coeficiente de assimetria %de pilson% de -0,05, mostrando que os dados não são exatamente homogêneos e bem mais simétricos do que aparentam. A maior parte dos alunos, quase um terço deles, dorme 6 horas por dia, seguido pelos que dormem 8 horas, que representam um quarto dos dados. Em média, os alunos da universidade têm 6 horas e 43 minutos de sono diário, bem menos que a média nacional, de 7 horas e 36 minutos [5]. Na verdade, metade dos nosso alunos responderam dormir menos de 6 horas e 45 minutos, o que é abaixo do recomendado, entre 7 e 9 horas [6], o que pode trazer diversos riscos a saúde e principalmente a cognição [7]. Apenas cerca de um terço dos nossos alunos está dormindo acima do recomendado e um quarto deles dorme 8 horas ou mais por dia.
 
 ```{r}
 ggplot(transito, aes(sono)) +
