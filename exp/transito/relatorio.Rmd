@@ -25,6 +25,11 @@ transito3 <- read_csv("transito3.csv")
 cv <- function(arg){
   return(sd(arg, na.rm = TRUE)/mean(arg, na.rm = TRUE))
 }
+
+transito <- transito %>%
+  mutate(tempo = (ida_tempo + volta_tempo)/60)
+transito_tempo <- as.numeric(pull(transito, tempo))
+
 ```
 
 ## Objetivo Geral
@@ -33,7 +38,7 @@ Analisar e estudar os efeitos, caso existam, do tempo gasto no deslocamento até
 ## Meios de transporte
 Para começar a verificar a relação dos alunos da aula de estatística exploratória com o trânsito, podemos primeiro olhar para o meio de transporte utilizado pelos alunos para sua locomoção diária.
 
-```{r, include=TRUE}
+```{r, include=FALSE}
 table1 <- transito %>%
   gather(ida_transporte, volta_transporte, key=tipo, value=Meio) %>% 
   group_by(Meio) %>% 
@@ -66,10 +71,6 @@ transito2 %>%
 ```
 Analisando os meios de transporte por área de residência na Figura \ref{fig:meio_local}, encontramos associações interessantes. Como era de se esperar, as pessoas que responderam que vão ou voltam a pé ou de bicicleta, moram em Brasília, ou seja, perto da universidade. Já para os usuários de metrô, 62% moram em Taguatinga. Quanto aos usuários de ônibus, um quarto mora em Brasília. Para os que usam carro, a maioria é novamente de Brasília. 
 
-```
-Com relação às distâncias, pode-se observar uma maior distância média dos usuários de transporte público de sua residência à universidade. Entretanto, verificar a distância média pode esconder informações, já que a média não representa todos os dados e é afetada por valores extremos. Considerando apenas os meios de transporte mais utilizados, encontramos mais informações.
-```
-
 Com relação às distâncias, encontramos uma alta variabilidade nos dados referentes ao uso de carro e ônibus tanto na ida quanto na volta. Na ida, o coeficiente de variação para o carro e para o ônibus ficam em torno de 66% e 55% respectivamente. Podemos verificar, também na ida, que a mediana do conjunto de dados do Ônibus é maior que o terceiro quartil do conjunto de dados do Carro. Na volta, entretanto, as medianas ficam bem próximas. 17% da variação da distânciana ida pode ser explicada pelo meio de transporte, enquanto na volta, percentual ficou em 4,3%, o que condiz com o boxplot, mostrando que, neste caso, a distância média varia pouco conforme o meio de transporte. Vale ressaltar que 78% dos estudantes que responderam a pesquisa usam o mesmo meio de transporte no seu trajeto diário à universidade.
 
 ```{r}
@@ -101,21 +102,10 @@ transito %>%
 ```
 Em relação à qualidade do transporte público, podemos ver que a avaliação dos estudantes apresenta uma distribuição simétrica, com maior frequência da avaliação **regular** e menor frequência das avaliações extremas. 
 
-```{r, echo=FALSE}
-transito %>% 
-  filter(ida_transporte == "Metrô" | volta_transporte == "Metrô") %>% 
-  group_by(avaliacao) %>% 
-  summarise(n())
-```
-Se considerarmos apenas os usuários de metrô, a distribuição se torna diferente. Não houveram respostas no extremos, e mais pessoas responderam "Bom" do que "Ruim", o que nos leva a acreditar que o metrô se encontra em boa qualidade.
-
 ## Tempo no Trânsito
 
 ```{r, include=FALSE}
-transito <- transito %>%
-  mutate(tempo = (ida_tempo + volta_tempo)/60)
-  
-transito_tempo <- as.numeric(pull(transito, tempo))
+
 ```
 
 ```{r, echo=FALSE}
@@ -128,16 +118,16 @@ transito %>%
     coord_flip()
 ```
 
-A partir do gráfico 1*, podemos comparar a distribuição de dois conjuntos de dados: o tempo que os estudante levam até chegar na universidade, e o tempo que levam para chegar no local de interesse após a saída da universidade. No primeiro conjunto, podemos verificar uma simetria e uma menor variabilidade se comparada ao segundo conjunto. De fato, se levarmos em conta a medida do coeficiente de variação, obtemos um valor de 0.52 para o primeiro conjunto, e 0.56. A diferença é sútil, mas nos mostra também que ambos conjuntos são heterogêneos. Podemos verificar ainda a existência valores extremos no segundo conjunto de dados, como indício da maior variância. % TODO Perguntar isso pra prof ou pro monitor
+A partir do gráfico 1*, podemos comparar a distribuição de dois conjuntos de dados: o tempo que os estudante levam até chegar na universidade, e o tempo que levam para chegar no local de interesse após a saída da universidade. No primeiro conjunto, podemos verificar uma simetria e uma menor variabilidade se comparada ao segundo conjunto. De fato, se levarmos em conta a medida do coeficiente de variação, obtemos um valor de 0.52 para o primeiro conjunto, e 0.56. A diferença é sutil, mas nos mostra também que ambos conjuntos são heterogêneos. Podemos verificar ainda a existência valores extremos no segundo conjunto de dados, como indício da maior variância.
 
-As altas variabiidades dos dados é provavelmente decorrente da escolha de meio de transporte e da residência de cada indivíduo. Vamos separar os dados por essas variáveis mais a frente. %Se separarmos os dados por essas variáveis, verificamos dados mais homogêneos:...
+A alta variabiidade dos dados é provavelmente decorrente da escolha de meio de transporte e da residência de cada indivíduo. Vamos separar os dados por essas variáveis mais a frente.
 
 Analisando mais a fundo os quartis do nosso conjunto de dados, podemos verificar que metade dos alunos precisam de pelo menos 50 minutos para chegar a universidade. Para 20% dos alunos, esse valor é de pelo menos 1 hora e 20 minutos.
-Para sair da universidade, metade dos nossos alunos levam mais de 1 hora para chegar no seu local de interesse. No geral, em média, o aluno da UnB passa 1 hora e 50 minutos no trânsito diariamente, %com desvio padrão de 50 minutos%. 40% dos alunos passam mais de 2 horas diárias no trânsito e 20% passam mais de 2 horas e 30 minutos. 
+Para sair da universidade, metade dos nossos alunos levam mais de 1 hora para chegar no seu local de interesse. No geral, em média, o aluno da UnB passa 1 hora e 50 minutos no trânsito diariamente, com desvio padrão de 50 minutos. 40% dos alunos passam mais de 2 horas diárias no trânsito e 20% passam mais de 2 horas e 30 minutos. 
 
-Esses dados nos permite estimar que estudante da UnB perde cerca de 10 dias por ano no trânsito. Isso não só representa um intervalo de tempo gasto na nossa rotina, como tras consigo riscos a saúde. Passar mais de 30 minutos no trânsito {na ida e na volta} está relacionado com maiores níveis de stress e ansiedade[3] %se comparado...%, e  também pode trazer maior risco de pre-diabetes, diabetes, doenças cardíacas e depressão[4].
+Esses dados nos permite estimar que estudante da UnB perde cerca de 10 dias por ano no trânsito. Isso não só representa um intervalo de tempo gasto na nossa rotina, como tras consigo riscos a saúde. Passar mais de 30 minutos no trânsito {na ida e na volta} está relacionado com maiores níveis de stress e ansiedade[3] %se comparado...%, e  também pode trazer maior risco de pré-diabetes, diabetes, doenças cardíacas e depressão[4].
 
-Como mostra o gráfico x, o meio de transporte mais rápido, em  média, para se chegar a universidade é a pé, enquato o meio mais demorado, em média, é o metrô. Entretanto, os alunos que pegam somente ônibus passam mais tempo no trânsito diariamente, cerca de 2 horas e 26 minutos, e 25% deles passam 3 horas ou mais no trânsito diariamente. Para quem usa apenas metrô, 75% fica mais de 2 horas e 20 minutos diários no "commuting". %calcular coeficientes de variância
+Como mostra o gráfico x, o meio de transporte mais rápido, em  média, para se chegar a universidade é a pé, enquato o meio mais demorado, em média, é o metrô. Entretanto, os alunos que pegam somente ônibus passam mais tempo no trânsito diariamente, cerca de 2 horas e 26 minutos, e 25% deles passam 3 horas ou mais no trânsito diariamente. Para quem usa apenas metrô, 75% fica mais de 2 horas e 20 minutos diários no seu deslocamento diário. %calcular coeficientes de variância
 ```{r, fig.width=4,fig.show="hold"}
 transito %>% 
   gather(ida_transporte, volta_transporte, key=tipo, value=Meio) %>% 
@@ -147,7 +137,7 @@ transito %>%
   #spread(key=tipo, value = tempo)
   ggplot() +
     geom_bar(aes(Meio, tempo, fill=tipo), stat="identity", position = "dodge") +
-    scale_fill_brewer(palette = "Set1")
+    scale_fill_manual(values = c("darkgray", "gray30"))
 
 transito %>% 
   gather(ida_transporte, volta_transporte, key=tipo, value=Meio) %>% 
@@ -158,26 +148,23 @@ transito %>%
     facet_wrap(~ tipo)
 ```
 
-No gráfico x.1, obtemos a distribuição do %tempo de chegada?% de cada local de residência. Podemos observar indícios de uma forte relação entre o tempo que se leva pra chegar na universidade e o local de residência dos estudantes, como era de se esperar. Surpreendente, os moradores do Guará são os que levam menos tempo, em média, para chegar a universidade. Os moradores do Recanto das Emas são os que mais demoram para chegar a universidade, onde o tempo mínimo observado foi de 1 hora e 35 minutos, e a média foi de 1 hora e 45 minutos diários.
+No gráfico x obtemos a distribução do tempo de deslocamento de cada local de residência. Podemos observar indícios de uma forte relação entre o tempo que se leva pra chegar e sair da universidade e o local de residência dos estudantes, %como era de se esperar¨%. Surpreendente, os moradoes do Guará são os que levam menos tempo, em média, para chegar e sair da universidade. Os moradores do Recanto das Emas são os que mais demoram para chegar a universidade, onde o tempo mínimo observado foi de 1 hora e 35 minutos para chegar a universidade e um tempo máximo de 3 horas para sair da universidade e chegar ao seu local de origem. 
 
-Analogamente, temos no gŕafico x.2 a distribuição do %tempo de saída?% de cada local de residência. Novamente é possível observar indícios de uma forte realção entre as duas variáveis. Os extremos observados anteriormente se preservaram, mas a distribuição de diversos locais mudou bastante, ~o que pode indicar que o tempo de locomoção entre os diversos locais varia conforme o horário~. %Usar um coefieciente para determinar
+Como foi observado anteriormente, os dados do tempo que os estudante levam até chegar na universidade e o tempo que levam para chegar no local de interesse após a saída da universidade variam bastante. Agora que separamos esses dados pelos locais de residência, podemos confirmar nossa hipótese de que parte dessa variabilidade é explicada pelos diferentes locais de residência. De fato, o %Calcular R²%
 
-```{r, fig.height=4, fig.width=3, fig.show="hold"}
+```{r, fig.height=4, fig.width=6, fig.show="hold"}
 transito %>%
-  mutate(resid = ifelse( resid %in% c('Asa Norte', 'Asa Sul'), 'Brasília', resid)) %>%
-  ggplot(aes(x = reorder(resid, ida_tempo, FUN = mean), y = ida_tempo)) +
+  mutate(resid = ifelse( resid %in% c('Asa Norte', 'Asa Sul'), 'Brasília', resid),
+         resid = ifelse( resid %in% c('Santa Maria', 'Águas Lindas', 'Cruzeiro', 'Planaltina', 'Guará 2'), 'Outros', resid)) %>%
+  gather(ida_tempo, volta_tempo, key = tipo, value = tempo) %>% 
+  ggplot(aes(x = reorder(resid, tempo, FUN = mean), y = tempo)) +
     geom_boxplot() +
-    coord_flip()
-
-transito %>%
-  mutate(resid = ifelse( resid %in% c('Asa Norte', 'Asa Sul'), 'Brasília', resid)) %>%
-  ggplot(aes(x = reorder(resid, volta_tempo, FUN = mean), y = volta_tempo)) +
-    geom_boxplot() +
-    coord_flip()
+    coord_flip() +
+    facet_wrap(~ tipo)
 ```
 
-Outra forma de verificar a relação acima é observando o gráfico x.3, que demonstra a relação entre o tempo no trânsito e a distância média das cidades até a UnB. %Calcular coeficientes de correlação
-```{r, message=FALSE}
+Outra forma de verificar a relação acima é observando o gráfico x.3, que demonstra a relação entre o tempo no trânsito e a distância média das cidades até a UnB. As duas variáveis tem um coeficiente de correlação linear de Pearson de 73%, mostrando um forte relação entre as variáveis.
+```{r}
 ggplot(transito, aes(dist, tempo)) + 
   geom_point()
 ```
@@ -214,9 +201,9 @@ transito %>%
     geom_area(bins = 16, stat='bin')
 ```
 
-Vamos olhar agora como o tempo restante dos nossos estudantes é utilizado. Com relação ao tempo utilizado para estudar a matéria do seu curso fora das aulas , encotramos uma distribuição levemente assimétrica para a direita, com a maior frequência das respostas se concentrando no intervalo de 2 à 3 horas, e diminuindo conforme o tempo aumenta. Em média, os alunos passam 1 hora e 41 minutos estudando diariamente, e 50% deles disseram dedicar 2 horas ou mais aos estudos diários das matérias universitárias. É importante observar a grande variabilidade desse conjunto de dados, pois apresentam um coeficiente de variação de 0,63. Um efeito observado dessa alta variabilidade é que os %16,6% dos alunos que dediacam menos tempo aos estudos, dedicam 1 hora ou menos ao estudo diário da matéria, enquanto os 16,6% que dedicam mais tempo dedicam 4 horas ou mais aos estudos...
+Vamos olhar agora como o tempo restante dos nossos estudantes é utilizado. Com relação ao tempo utilizado para estudar a matéria do seu curso fora das aulas , encotramos uma distribuição levemente assimétrica para a direita, com a maior frequência das respostas se concentrando no intervalo de 2 à 3 horas, e diminuindo conforme o tempo aumenta. Em média, os alunos passam 1 hora e 41 minutos estudando diariamente, e 50% deles disseram dedicar 2 horas ou mais aos estudos diários das matérias universitárias. É importante observar a grande variabilidade desse conjunto de dados, pois apresentam um coeficiente de variação de 0,63. Um efeito observado dessa alta variabilidade é que os %¨16,6% dos alunos que dediacam menos tempo aos estudos, dedicam 1 hora ou menos ao estudo diário da matéria, enquanto os 16,6% que dedicam mais tempo dedicam 4 horas ou mais aos estudos...
 
-Com respeito ao tempo utilizado pelos estudantes com atividades %extracurriculares?%, encontramos uma distribuição não tão simétrica e muito mais variada. Primeiro, é importante notar que estamos analisando um conjunto de dados de 46 dados, já que 14 alunos responderam não dedicar nenhuma parte de seu tempo a atividades %extracurricu,,,%. Dessa vez, temos um coeficiente de variação de 0,9, um coeficiente altíssimo, mesmo se comparado a distribuição anterior. A maioria dos alunos respodeu dedicar perto de 1 hora para esses tipos de atividade e a mediana foi de 2 horas.
+Com respeito ao tempo utilizado pelos estudantes com atividades %extracurriculares%, encontramos uma distribuição não tão simétrica e muito mais variada. Primeiro, é importante notar que estamos analisando um conjunto de dados de 46 dados, já que 14 alunos responderam não dedicar nenhuma parte de seu tempo a atividades %extracurricu,,,%. Dessa vez, temos um coeficiente de variação de 0,9, um coeficiente altíssimo, mesmo se comparado a distribuição anterior. A maioria dos alunos respodeu dedicar perto de 1 hora para esses tipos de atividade e a mediana foi de 2 horas.
 
 ```{r}
 transito %>% 
@@ -231,44 +218,41 @@ transito %>%
     scale_x_continuous(breaks = seq(0, 10, 1))
 ```
 
-Uma última forma interessante de analisar como o tempo dos nossos estudantes é admnistrado é verificando quanto tempo passam dormindo. Dessa vez, temos evidências de uma distribuição menos variada, porém, ainda pouco simétrica. Na verdade, temos um coeficiente de variação de 0,18 e um coeficiente de assimetria %de pilson% de -0,05, mostrando que os dados não são exatamente homogêneos e bem mais simétricos do que aparentam. A maior parte dos alunos, quase um terço deles, dorme 6 horas por dia, seguido pelos que dormem 8 horas, que representam um quarto dos dados. Em média, os alunos da universidade têm 6 horas e 43 minutos de sono diário, bem menos que a média nacional, de 7 horas e 36 minutos [5]. Na verdade, metade dos nosso alunos responderam dormir menos de 6 horas e 45 minutos, o que é abaixo do recomendado, entre 7 e 9 horas [6], o que pode trazer diversos riscos a saúde e principalmente a cognição [7]. Apenas cerca de um terço dos nossos alunos está dormindo acima do recomendado e um quarto deles dorme 8 horas ou mais por dia.
+Uma última forma interessante de analisar como o tempo dos nossos estudantes é admnistrado é verificando quanto tempo passam dormindo. Dessa vez, temos evidências de uma distribuição menos variada, porém, ainda pouco simétrica. Na verdade, temos um coeficiente de variação de 0,18 e um coeficiente de assimetria Pearson de -0,05, mostrando que os dados não são exatamente homogêneos e bem mais simétricos do que aparentam. A maior parte dos alunos, quase um terço deles, dorme 6 horas por dia, seguido pelos que dormem 8 horas, que representam um quarto dos dados. Em média, os alunos da universidade têm 6 horas e 43 minutos de sono diário, bem menos que a média nacional, de 7 horas e 36 minutos [5]. Na verdade, a mediana desse conjunto de dados é de 6 horas e 45 minutos, o que é abaixo do recomendado, entre 7 e 9 horas [6], o que pode trazer diversos riscos a saúde e principalmente a cognição [7]. Apenas cerca de um terço dos nossos alunos está dormindo acima do recomendado e um quarto deles dorme 8 horas ou mais por dia.
 
 ```{r}
 ggplot(transito, aes(sono)) +
-  geom_histogram(aes(color = sono),bins=6)
+  geom_histogram(bins=6, color = "black") +
+  scale_x_time(breaks = seq(18000, 36000, 3600))
 ```
-
-# tempo dos estudantes
-```{r, fig.width=8, fig.height=5}
-transito3 <- transito3 %>% 
-  mutate(total = ida_tempo + volta_tempo + cred + estudo + ativ + sono,
-         tempo = ida_tempo + volta_tempo) %>% 
-  arrange(total)
-
-transito3$id <- seq_len(nrow(transito3))  
-
-transito3 %>% 
-  gather(ida_tempo:sono, key = tipo, value = tempo_) %>% 
-  mutate(tempo_ = tempo_/60) %>% 
-  ggplot(aes(id, tempo_)) +
-      geom_area(aes(fill = reorder(tipo, tempo_, FUN=mean)), position = position_stack(reverse = T)) +
-      scale_fill_viridis(discrete = TRUE, direction = -1)
-```
-
 
 ## Impactos do trânsito no tempo
 %% Parágrafo introdutório
 
+O gráfico %x% nos mostra pouca ou nenhuma relação entre as variáveis tempo gasto no trânsito e o tempo gasto em outras tarefas diárias. Um estudo dos coeficientes dos dados da tabela %x% nos permite concluir que a relação entre as variáveis é fraca e negativa, ou seja, o tempo gasto no trânsito diariamente influência negativamente o tempo gasto em outras tarefas de maneira bem fraca.
+
 ```{r, fig.width=7}
-transito %>% 
+tempos <- transito %>% 
   gather(ativ, sono, estudo, key = tipo, value = tempo_) %>% 
+  mutate(tipo = as.factor(tipo))
+
+levels(tempos$tipo) <- c("Atividades", "Estudo", "Sono")
+
+tempos %>% 
   ggplot(aes(tempo, tempo_)) +
     geom_jitter(size = 0.6) +
     geom_smooth(color = "darkgrey", se = FALSE, method = "lm") +
     facet_grid(~ tipo)
 ```
 
-O gráfico nos mostra pouca ou nenhuma relação entre as variáveis tempo gasto no trânsito e o tempo gasto em outras tarefas diárias. Um estudo dos coeficientes de correlação %de pilson% nos permite concluir que a relação entre as variáveis é fraca e negativa, ou seja, o tempo gasto no trânsito diariamente influência negativamente o tempo gasto em outras tarefas de maneira bem fraca.
+| Variável   | Coeficiente |
+|------------|-------------|
+| Atividades | -0,17       |
+| Estudo     | -0,05       |
+| Sono       | -0,13       |
+Table: Coeficiente de correlação de Pearson entre o tempo no trânsito e as variáveis atividades %extra%, tempo de para estudo e tempo dormindo.
+
+Indo um pouco além dos objetivos e analisando desta vez como o tempo dedicado ao estudo das matérias do curso e a atividades %extracurriculares% impacta no sono, podemos ver uma relação mais forte entre as variáveis. Estudando os coeficientes de correlação linear de Pearson da variável tempo dormindo, encontramos os valores -0,18 quando relacionamos com o tempo dedicado a atividades %extra% e de -0,35 quando relacionamos com o tempo dedicado aos estudos. É possível concluir que há uma relação de fraca para moderada e negativa entre as variáveis ~estudo e ~ativ e ~sono, ou seja, quanto maior o tempo dedicado a essas atividades, menor o tempo dedicado a dormir.
 
 ```{r}
 transito %>%
@@ -279,8 +263,6 @@ transito %>%
     geom_smooth(color = "darkgrey", se = FALSE, method = "lm") +
     facet_grid(~ tipo)
 ```
-
-Indo um pouco além dos objetivos e analisando desta vez como o tempo dedicado ao estudo das matérias do curso e a atividades %extracurriculares% impacta no sono, podemos ver uma relação mais forte entre as variáveis. Estudando os coeficientes de correlação %de pilson e spearm%, é possível concluir uma relação de fraca para moderada e negativa entre as variáveis ~estudo e ~ativ e ~sono, ou seja, quanto maior o tempo dedicado a essas atividades, menor o tempo dedicado a dormir.
 
 ## Prod
 
