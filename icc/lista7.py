@@ -56,17 +56,6 @@ for i in range(N):
 for i in sorted(ex_machina.keys(), reverse=True):
     print(ex_machina[i],end='')
 
-# usando tuple \\ nao funciona :(
-N = int(input())
-ex_machina = []
-
-for i in range(N):
-    deus = input().split()
-    ex_machina.append(tuple(deus))
-
-for i in sorted(ex_machina, key=lambda dif: dif[2], reverse=True ):
-    print(i[1],end='')
-
 # %% QUESTAO 4
 N = int(input())
 pos = [0,0]
@@ -124,7 +113,7 @@ X, Y = input().split()
 def ack(x, y):
     if x == 0:
         return y + 1
-    elif y == 0:
+    if y == 0:
         return ack(x - 1, 1)
     else:
         return ack(x -1, ack(x, y-1))
