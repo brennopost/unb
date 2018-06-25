@@ -1,9 +1,16 @@
 ---
-title: "Relatório Final"
-author: "Brenno Cordeiro"
-date: "June 11, 2018"
-output: pdf_document
+title: ""
+output: 
+    pdf_document
 lang: "pt"
+documentclass: article
+classoption: a4paper
+fontsize: 12pt
+geometry: margin= 3cm
+#bibliography: bib.bib
+#link-citations: true
+#nocite: | 
+#  @ref1, @ref2, @ref3, @ref4
 ---
 
 ```{r setup, include=FALSE}
@@ -32,8 +39,107 @@ transito_tempo <- as.numeric(pull(transito, tempo))
 
 ```
 
-## Objetivo Geral
-Analisar e estudar os efeitos, caso existam, do tempo gasto no deslocamento até a instituição de ensino no tempo disponível para os estudos
+
+\begin{center}
+```{r pressure, echo=FALSE,out.width = '50%',fig.align='center'}
+knitr::include_graphics("unb.jpg")
+```
+ \Large Universidade de Brasília\\
+ IE - Departamento de Estatística\\
+ Trabalho de Estatística Exploratória 1
+\end{center} 
+ \vskip 12em
+\begin{center}
+ \Large \textbf{T?tulo}
+ \par
+ \vskip 7em
+\end{center}
+\setlength{\baselineskip}{.5cm}
+\small \textbf{}
+\par
+\vskip 5em
+
+\begin{flushright}
+\small Brenno Pereira Cordeiro - 180052071\\
+\small Johnata Alves Moura da Silva - 180020340\\
+\small Thiago Patrício - 180055143\\
+\vskip 2em
+\small Prof. Juliana Betini Fachini Gomes
+\end{flushright}
+
+\vskip 6em
+\begin{center}
+\setlength{\baselineskip}{.5cm}
+Brasília\\
+\vskip 1em
+Junho de 2018
+\end{center}
+
+\newpage
+\tableofcontents
+
+\newpage
+
+# Introdução
+
+Com o advento da modernização dos meios de transporte, o homem se tornou mais eficiente em seu deslocamento. Contudo, ligado ao avanço tecnológico no transporte, há um sério problema de lotação e falta de planejamento, o que pode gerar um grande atraso no cotidiano do indivíduo.
+
+O conglomerado cada vez maior dos mais diversos serviços no menor espaço possível criou o que chamamos de "casas-dormitório" - os domicílios atualmente, servem mais como espaços temporários para o descanso, que são abandonadas logo depois de acordar e as quais só são preenchidas novamente no fim de um expendiente que normalmente dura o dia inteiro. Enquanto os serviços se encontram nas cidades e se apertam nas grandes partes das metrópoles, as cidades que as contornam cada vez mais dependem da locomoção entre suas casas e os centros das cidades, independentes do quão distantes os dois pontos sejam.
+
+Sendo assim, as pessoas tentam de diversas maneiras inventar métodos que contornam os danos que esses problemas de locomoção venham a causar em seus cotidianos. Essa pesquisa  tem o intuito de estudar como a locomoção impacta no desempenho acadêmico dos discentes da Universidade de Brasília  assim como métodos que os alunos usam para que isso não afete tanto a sua produtividade. 
+
+Temos como objetivo com essa pesquisa analisar e estudar os efeitos do tempo gasto durante o trajeto diário no tempo restante para estudo e outras atividades. Gostaríamos de entender, também, a produtividade dos alunos e como ela se relaciona com o trânsito.
+
+Nossa hipótese é que o período que os estudantes permanecem no trânsito afeta negativamente no tempo disponível para se dedicar às matérias de seu curso. Para confirmar tal hipótese realizaremos análises exploratórias ao longo deste relatório.
+
+\newpage
+
+# Metodologia
+
+Para realizar essa pesquisa de objetivos descritivos, elaboramos uma abordagem direta através de uma pesquisa de campo para obter dados primários e por meio da análise exploratória de dados esperamos obter resultados conclusivos a fim de alcançar os objetivos citados.
+A fim de reunir os dados necessários, utilizamos um questionário padronizado aplicado nos alunos da UnB selecionados por uma amostragem não-aleatória por conveniência.  Assim, foi possível obter uma amostra de 60 alunos. 
+Desta forma, obtivemos 12 variáveis a partir da coleta direta, e a partir destas, obtemos outras variáveis de forma indireta, como a variável distância média entre a Universidade e o Local de Residência, onde utilizamos a distância média de cada região apontadas pelo Google Maps.
+Assim, as variáveis obtidas são:
+
+* Meio de transporte utilizado para chegar a Universidade – Qualitativa Nominal
+* Meio de transporte utilizado na saída da Universidade - Qualitativa Nominal
+* Local de Residência – Qualitativa Nominal
+* Distância Média entre a Residência e a Universidade - Quantitativa Contínua
+* Tempo gasto para chegar a Universidade – Quantitativa Contínua
+* Tempo gasto na saída da Universidade - Quantitativa Contínua
+* Avaliação do Transporte Público – Qualitativa Ordinal
+* Créditos no semestre atual – Quantitativa Discreta
+* Tempo dedicado para estudo diário - Quantitativa Contínua
+* Tempo dedicado para atividades diárias - Quantitativa Contínua
+* Tempo dedicado ao sono - Quantitativa Contínua
+* Local de maior produtividade – Qualitativa Nominal
+* Período de maior produtividade – Qualitativa Ordinal
+
+ Para proceder a nossa exloração, primeiro avaliamos as variáveis unidimensionais, e depois relacionamos com as demais variáveis e excutamos a análise multivariada. O foco da nossa análise ficou nas variáveis relacionadas ao tempo no trânsito e produtividade.
+Utilizamos o software R pra auxiliar na análise, e as bibliotecas ‘tidyverse’ e ‘viridis’ para gerar os gráficos que serviram de base para o estudo inical dos fenômenos. Para gerar o relatório, utilizamos o R Markdown.
+Para auxiliar na interpretação dos acontecimentos que serão observados, vamos utilizar medidas descritivas de posição e dispersão, e coeficientes resultantes dessas medidas. São eles:
+
+* Coeficiente de Variação
+$$cv = \frac{\mu }{| \sigma | }$$
+* Coeficiente de Assimetria de Pearson
+$$ 3 \frac{\mu - Md}{\sigma}$$
+* Coeficiente de Correlação linear de Pearson
+$$\rho = \frac{\text{cov}(X,Y)}{\sigma_x \sigma_y}$$
+* Coeficiente de Correlação de Spearman
+$$\rho = 1- {\frac {6 \sum d_i^2}{n(n^2 - 1)}} $$
+* R^2
+$$R^2 = 1 - \frac{\bar{Var(X)}}{Var(X)}$$
+
+Usando o método hipotético-dedutivo - onde partimos de uma hipótese e tentamos comprová-la - pretendemos chegar à um modelo capaz de descrever os possíveis fenômenos e então os analisar, com o intuito de comprovar nossas conjecturas. 
+
+## Limitações
+Ao longo do processo de análise dos dados encontramos alguns problemas, que poderiam ser contornados com uma melhor elaboração do nosso instrumento de coleta de dados. Podemos citar como exemplo a falta de especificidade de algumas variáveis presentes no questionário.
+Por exemplo, ao perguntar "Qual cidade você mora?" perdemos informações pois o foco de nossa análise era voltado na distância da residência do estudante à UnB. Quanto a variável "avaliação do transporte público" o questionário não foi específico o suficiente para recolher informações independentes de cada forma de transporte público.
+Percebemos que seria interessante questionar o curso dos alunos e o seu turno, pois nos permitiria melhor compreender os fenômenos relacionados.
+
+\newpage
+
+# Resultados
 
 ## Meios de transporte
 Para começar a verificar a relação dos alunos da aula de estatística exploratória com o trânsito, podemos primeiro olhar para o meio de transporte utilizado pelos alunos para sua locomoção diária.
@@ -69,6 +175,7 @@ transito2 %>%
     guides(color= guide_legend(), size=guide_legend()) +
     labs(x = "Meio de Transporte", y = "Local de Residência", color = "Quantidade", size = "Quantidade")
 ```
+
 Analisando os meios de transporte por área de residência na Figura \ref{fig:meio_local}, encontramos associações interessantes. Como era de se esperar, as pessoas que responderam que vão ou voltam a pé ou de bicicleta, moram em Brasília, ou seja, perto da universidade. Já para os usuários de metrô, 62% moram em Taguatinga. Quanto aos usuários de ônibus, um quarto mora em Brasília. Para os que usam carro, a maioria é novamente de Brasília. 
 
 Com relação às distâncias, encontramos uma alta variabilidade nos dados referentes ao uso de carro e ônibus tanto na ida quanto na volta. Na ida, o coeficiente de variação para o carro e para o ônibus ficam em torno de 66% e 55% respectivamente. Podemos verificar, também na ida, que a mediana do conjunto de dados do Ônibus é maior que o terceiro quartil do conjunto de dados do Carro. Na volta, entretanto, as medianas ficam bem próximas. 17% da variação da distânciana ida pode ser explicada pelo meio de transporte, enquanto na volta, percentual ficou em 4,3%, o que condiz com o boxplot, mostrando que, neste caso, a distância média varia pouco conforme o meio de transporte. Vale ressaltar que 78% dos estudantes que responderam a pesquisa usam o mesmo meio de transporte no seu trajeto diário à universidade.
@@ -102,9 +209,9 @@ transito %>%
 ```
 Em relação à qualidade do transporte público, podemos ver que a avaliação dos estudantes apresenta uma distribuição simétrica, com maior frequência da avaliação **regular** e menor frequência das avaliações extremas. 
 
+\newpage
+
 ## Tempo no Trânsito
-
-
 ```{r, echo=FALSE}
 transito %>% 
   select(ida_tempo, volta_tempo) %>% 
@@ -223,6 +330,8 @@ ggplot(transito, aes(sono)) +
   scale_x_time(breaks = seq(18000, 36000, 3600))
 ```
 
+\newpage
+
 ## Impactos do trânsito no tempo
 %% Parágrafo introdutório
 
@@ -261,27 +370,174 @@ transito %>%
     facet_grid(~ tipo)
 ```
 
-## Prod
+\newpage
+
+# PRODUTIVIDADE 
+PROD X NADA
+Para começar a análise da produtividade dos alunos, verificaremos a distribuição das frequência relacionadas ao local de maior produtividade no gráfico x.1.
+
+```{r}
+transito %>% 
+  ggplot(aes(prod))+
+  geom_bar()+
+  xlab("Local de maior produtividade")+
+  ylab("Frequência")
+```
+
+Com o gráfico acima*(x.1)* observamos uma maior produtividade dos estudos em casa, entre os locais da UnB, o ambiente mais produtivo é o da biblioteca.
+Contudo, não é muito informativo, para uma análise mais detalhada vamos relacionar essa variável com o local de residência no gráfico x.2.
+
+### PROD X RESID(DIST)
+
+```{r, fig.width=6, fig.height=5}
+transito %>% 
+  mutate(resid = ifelse(resid %in% c("Asa Norte","Asa Sul","Plano Piloto"),"Brasília",resid),
+         resid = ifelse(resid %in% c("Guará","Guará 2","Recanto das Emas","Sobradinho"),"Outros",resid)) %>% 
+  ggplot(aes(prod,fill=resid))+
+  geom_bar()+
+  labs("Local de maior produtividade", "Frequência", fill = "Local de Residência")+
+  scale_fill_viridis(discrete = TRUE)
+```
+
+Das observações em que a maior produtividade dos estudos é encontrada em casa, como esperado, nota-se uma grande quantidade de pessoas que residem em Brasília, ou seja, perto da universidade. Como essas pessoas não perdem muito tempo no trânsito, preferem estudar no conforto de suas casas para um melhor desempenho. Surpreendentemente, há uma elevada quantidade de observações de pessoas que moram em Brasília e possuem como local de maior produtividade a UnB, durante as aulas, e uma expressiva quantidade de alunos que moram em Planaltina (distante da UnB) e preferem estudar em casa. Entretanto, pessoas que moram em regiões mais distantes da universidade tendem a ter uma maior produtividade na biblioteca da UnB, observa-se uma baixa ocorrência de moradores de Brasília nesse caso. Com isso, percebe-se uma relação entre a distância da residência do estudante com a escolha do local de maior produtividade, com estudantes que moram mais longe da universidade preferindo estudar na bibioteca, pois perderiam - no trânsito - muito tempo que poderia ser usado para estudar. 
+
+### LOCAL X TEMPO DE ESTUDO
+
+O gráfico x.3 nos mostra a relação entre o local de maior produtividade e o tempo de estudo fora dos turnos de aula.
+
+```{r}
+transito %>% 
+  filter(prod != "Na UnB (durante a aula)" ) %>% 
+  ggplot(aes(prod,estudo))+
+  geom_boxplot()+
+  xlab("Local de maior produtividade")+
+  ylab("Tempo de estudo (fora das aulas)")
+```
+
+Nos dados que se referem aos estudantes que preferem estudar em casa, observamos que há ma maior concentração dos dados abaixo de 2 horas, sem valores extremos com a maior observação sendo 6 horas e meia de estudo, nota-se um coeficiente de variação de Pearson de *CALCULAR* que nos remete à uma heterogeneidade do gráfico e um coeficiente de assimetria de *CALCULAR* nos mostrando que o gráfico possui uma assimetria positiva.  Já os alunos que possuem como local de maior produtividade a biblioteca da UnB e suas dependências, observa-se uma homogeneidade no gráfico sendo seu coeficiente de variação *CALCULAR?* e um comportamento perto de simétrico *coeficiente de assimetria*. Esses resultados nos evidenciam que os alunos que têm sua casa como local de maior produtividade tendem a ter um maior tempo disponível para focar nos estudos que os demais.
+Todavia, os que estudam em casa passam menos tempo (em média) estudando que os alunos presentes na biblioteca, onde a mediana do primeiro é equivalente ao primeiro quartil do segundo, isso pode ser explicado pelas inúmeras distrações que os estudantes podem encontrar em suas casas, diminuindo o tempo médio que permanecem estudando.
+
+### PERIODO DE MAIOR PRODUTIVIDADE X NADA
+
+Primeiramente, vamos verificar a distribuição das frequências dos períodos do dia de maior produtividade nos estudos.
 
 ```{r}
 transito$prod_tempo <- as.factor(transito$prod_tempo)
 levels(transito$prod_tempo) = c("Madrugada", "Manhã", "Tarde", "Noite")
+
+transito %>% 
+  ggplot(aes(prod_tempo))+
+  geom_bar(aes(fill = prod_tempo))+
+  xlab("Período de maior produtividade")+
+  ylab("Frequência")+
+  scale_fill_viridis(discrete = TRUE) +
+  theme(legend.position = "none" )
 ```
 
+Em primeira análise, observamos uma maior frequência pelo período da manhã, com uma grande concentração de dados após este período*Relacionar isso com a maioria dos cursos serem integrais?* e poucas observações pela madrugada, sendo este o período menos observado da amostra. Entretanto, uma análise unidimensional é superficial demais, sendo assim, realizaremos sua análise em conjunto com outras variáveis.
 
+### PERIODO DE MAIOR PRODUTIVIDADE X LOCAL DE MAIOR PRODUTIVIDADE
 
+Para verificar a relação entre as variáveis, analisaremos o gráfico x.2.
 
-# Bibliografia
+```{r, fig.width=5}
+transito %>% 
+  ggplot(aes(prod_tempo,fill=prod))+
+  geom_bar()+
+  xlab("Período de maior produtividade")+
+  ylab("Frequência")
+```
 
-links bons
-http://time.com/9912/10-things-your-commute-does-to-your-body/
-https://istoe.com.br/233957_TEMPO+MEDIO+GASTO+NO+TRANSITO+NO+BRASIL+CRESCE+20+EM+7+ANOS/
-https://www.prodoscore.com/blog/harmful-impact-commuting
+Ao analisar a relação entre o período de maior produtividade e o local, conseguimos observar uma maior preferência de estudar em casa nos períodos em que geralmente não tem aula: Madrugada e Noite(no caso de cursos no período integral). Observando o perído matutino, há uma maior frequência de alunos que possuem as aulas como período mais produtivo, o que faz sentido, pois a maioria dos alunos estão em aula no período analisado. Acontece algo semelhante com aqueles que preferem o período noturno para os estudos, há apenas 1 observação que diverge de "Em casa". Interessante perceber informações contraditórias no período da madrugada, onde há alunos que possuem a biblioteca da UnB como local de maior produtividade.*tão invadindo a biblioteca?*
 
-[1] http://www.saa.unb.br/images/stories/documentos/calendarios/graduacao/cal_atividades/calendario_atividade_1_2018.pdf
-[1.1] http://www.jornaldebrasilia.com.br/cidades/em-media-brasiliense-perde-40-dias-por-ano-no-transito/
-[3] http://webarchive.nationalarchives.gov.uk/20160105231823/http://www.ons.gov.uk/ons/rel/wellbeing/measuring-national-well-being/commuting-and-personal-well-being--2014/art-commuting-and-personal-well-being.html
-[4] https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3360418/
-[5] http://advances.sciencemag.org/content/2/5/e1501705
-[6] https://sleepfoundation.org/how-sleep-works/how-much-sleep-do-we-really-need/
-[7] https://www.ncbi.nlm.nih.gov/pubmed/19042703
+### PERIODO DE MAIOR PRODUTIVIDADE x TEMPO DE SONO?
+
+```{r}
+transito %>% 
+  ggplot(aes(x = prod_tempo, y = sono))+
+  geom_boxplot()+
+  xlab("Período de maior produtividade")+
+  ylab("Tempo de sono")
+```
+
+### PERIODO DE MAIOR PRODUTIVIDADE X LOCAL DE RESIDENCIA
+
+```{r}
+transito %>%
+  mutate(resid = ifelse(resid %in% c("Asa Norte","Asa Sul","Plano Piloto"),"Brasília",resid),
+         resid = ifelse(resid %in% c("Guará","Guará 2"),"Guará",resid)) %>% 
+  ggplot(aes(prod_tempo,fill=resid))+
+  geom_bar()+
+  xlab("Período de maior produtividade")+
+  ylab("Frequência")
+```
+
+Analisando o gráfico x.4, com exceção da madrugada, há uma considerável expressão de estudantes que moram em Brasília nos três períodos remanescentes, o que não acontece com regiões mais distantes da universidade, com estas estando mais concentradas no período matutino. Já analisado anteriormente, os alunos que residem distante da universidade preferem estudar na biblioteca da UnB e suas dependências, podemos deduzir que esses alunos preferem o período da manhã por ter que reservar os outros períodos do dia para a locomoção até a sua residência, o que não acontece com os que residem em Brasília, nas proximidades da universidade.
+
+\newpage
+
+# Conclusão
+
+\newpage
+#Apr?ndice
+Essa se??o pode ser utilizada para colocar gr?ficos, c?digos de programa??o, question?rios e outras informa??es revelantes para o trabalho.
+
+Abaixo, segue alguns modelos de tabelas, alguns jeitos de criar listas e como plotar gr?ficos dentro do rMarkdown.
+
+##Tabelas
+```{r,echo=FALSE}
+#Informa??es da tabela#
+tabela <- data.frame(NomeColuna1 = c(1:3), NomeColuna2 = c(1:3), NomeColuna3 = c(1:3))
+
+#Tabela#
+library(knitr)
+kable(tabela,format="markdown", caption = "Legenda")
+```
+
+## Lista 1
+\begin{enumerate}
+  \item Item 1
+  \item Item 2
+  \item Item 3
+\end{enumerate}
+
+##Lista 2
+\begin{itemize}  
+  \item Item 1
+  \item Item 2
+  \item Item 3
+\end{itemize}
+\textbf{OU}
+
+* Item 1
+* Item 2
+* Item 3
+
+##Gr?ficos
+Exemplos de gr?ficos e como alterar os seus tamanhos:
+```{r,warning=FALSE}
+library(ggplot2)
+mtcars$gear <- factor(mtcars$gear,levels=c(3,4,5),
+                      labels=c("3gears","4gears","5gears")) 
+mtcars$am <- factor(mtcars$am,levels=c(0,1),
+                    labels=c("Automatic","Manual")) 
+mtcars$cyl <- factor(mtcars$cyl,levels=c(4,6,8),
+                     labels=c("4cyl","6cyl","8cyl")) 
+qplot(hp, mpg, data=mtcars, shape=am, color=am, 
+   facets=gear~cyl, size=I(3),
+   xlab="Cavalos", ylab="Milhas por Gal?o")
+```
+
+  Caso queira remover o c?digo do gr?fico, basta adicionar ? se??o da programa??o "echo=FALSE", ap?s o \textit{warning} na programa??o.
+
+###Mudando o tamanho
+```{r, out.height= "74.4mm", out.width= "126.4mm",fig.align='center'}
+qplot(mpg, data=mtcars, geom="density", fill=gear, alpha=I(.5), 
+   main="Distribution of Gas Milage", xlab="Miles Per Gallon", 
+   ylab="Density")
+```
+
+  Basta adicionar os comandos \textit{out.height} e \textit{out.width} na se??o da programa??o do gr?fico. O comando \textit{fig.align} indica a posi??o do gr?fico na p?gina. Como foi utilizado 'center', o gr?fico est? no meio. 
+\newpage
+
+#Refer?ncias Bibliogr?ficas

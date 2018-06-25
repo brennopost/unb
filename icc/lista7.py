@@ -50,7 +50,7 @@ N = int(input())
 ex_machina = {}
 
 for i in range(N):
-    no_problemo, solution, difficulty = input().split()
+    no_problemo, solution, difficulty = input().split(" ")
     ex_machina.update([(int(difficulty), solution)])
 
 for i in sorted(ex_machina.keys(), reverse=True):
@@ -72,7 +72,6 @@ print("{} {} {} {}".format(max(mov['N'], mov['S']) - mov['N'],
 # usar from collections import Counter para performance
 text = input()
 
-
 def getWords(inp):
     words = []
     buffer = []
@@ -84,7 +83,6 @@ def getWords(inp):
                 words.append("".join(buffer))
             buffer = []
     return words
-
 
 wordList = getWords(text)
 output = []
