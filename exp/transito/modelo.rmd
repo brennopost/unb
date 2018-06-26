@@ -127,7 +127,7 @@ $$ 3 \frac{\mu - Md}{\sigma}$$
 $$\rho = \frac{\text{cov}(X,Y)}{\sigma_x \sigma_y}$$
 * Coeficiente de Correlação de Spearman
 $$\rho = 1- {\frac {6 \sum d_i^2}{n(n^2 - 1)}} $$
-* R^2
+* R²
 $$R^2 = 1 - \frac{\bar{Var(X)}}{Var(X)}$$
 
 Usando o método hipotético-dedutivo - onde partimos de uma hipótese e tentamos comprová-la - pretendemos chegar à um modelo capaz de descrever os possíveis fenômenos e então os analisar, com o intuito de comprovar nossas conjecturas. 
@@ -160,7 +160,7 @@ table1 <- transito %>%
 | Ônibus    | 21  | 27    |   |
 Table: Meio de transporte utilizado pelos alunos para chegar e sair da universidade.
 
-A maior parte dos alunos usa carro ou ônibus no seu deslocamento diário. Para chegar até a universidade, mais alunos preferem utilizar carro ao ônibus, situação que se inverte na volta. O meio de transporte é bem variado, com coeficiente de variação de 0,95.
+A maior parte dos alunos usa carro ou ônibus no seu deslocamento diário. Para chegar até a universidade, mais alunos preferem utilizar carro ao ônibus, situação que se inverte na volta. *O meio de transporte é bem variado, com coeficiente de variação de 0,95.*
 
 ```{r meio_local, fig.width=5, fig.height=3, fig.cap="Distribuição de frequência do meio de transporte utilizado em cada local de residência"}
 transito2 %>%
@@ -178,7 +178,7 @@ transito2 %>%
 
 Analisando os meios de transporte por área de residência na Figura \ref{fig:meio_local}, encontramos associações interessantes. Como era de se esperar, as pessoas que responderam que vão ou voltam a pé ou de bicicleta, moram em Brasília, ou seja, perto da universidade. Já para os usuários de metrô, 62% moram em Taguatinga. Quanto aos usuários de ônibus, um quarto mora em Brasília. Para os que usam carro, a maioria é novamente de Brasília. 
 
-Com relação às distâncias, encontramos uma alta variabilidade nos dados referentes ao uso de carro e ônibus tanto na ida quanto na volta. Na ida, o coeficiente de variação para o carro e para o ônibus ficam em torno de 66% e 55% respectivamente. Podemos verificar, também na ida, que a mediana do conjunto de dados do Ônibus é maior que o terceiro quartil do conjunto de dados do Carro. Na volta, entretanto, as medianas ficam bem próximas. 17% da variação da distânciana ida pode ser explicada pelo meio de transporte, enquanto na volta, percentual ficou em 4,3%, o que condiz com o boxplot, mostrando que, neste caso, a distância média varia pouco conforme o meio de transporte. Vale ressaltar que 78% dos estudantes que responderam a pesquisa usam o mesmo meio de transporte no seu trajeto diário à universidade.
+Com relação às distâncias, encontramos uma alta variabilidade nos dados referentes ao uso de carro e ônibus tanto na ida quanto na volta. Na ida, o coeficiente de variação para o carro e para o ônibus ficam em torno de 66% e 55% respectivamente. Podemos verificar, também na ida, que a mediana do conjunto de dados do Ônibus é maior que o terceiro quartil do conjunto de dados do Carro. Na volta, entretanto, as medianas ficam bem próximas. 17% da variação da distância na ida pode ser explicada pelo meio de transporte, enquanto na volta, percentual ficou em 4,3%, o que condiz com o boxplot, mostrando que, neste caso, a distância média varia pouco conforme o meio de transporte. Vale ressaltar que 78% dos estudantes que responderam a pesquisa usam o mesmo meio de transporte no seu trajeto diário à universidade.
 
 ```{r}
 transito %>% 
@@ -205,6 +205,7 @@ transito %>%
   ggplot(aes(avaliacao, n)) +
     geom_bar(aes(fill = n), stat = "identity") +
     theme(legend.position = "none") + 
+    scale_fill_gradient(high = "#333333", low = "#aaaaaa") +
     labs(x="Avaliação", y="Frequência")
 ```
 Em relação à qualidade do transporte público, podemos ver que a avaliação dos estudantes apresenta uma distribuição simétrica, com maior frequência da avaliação **regular** e menor frequência das avaliações extremas. 
@@ -217,8 +218,8 @@ transito %>%
   select(ida_tempo, volta_tempo) %>% 
   mutate(transito_tempo = (ida_tempo + volta_tempo)) %>% 
   gather(`ida_tempo`, `volta_tempo`, key=tipo, value=tempo) %>%
-  ggplot() +
-    geom_boxplot(aes(tipo, tempo)) +
+  ggplot(aes(tipo, tempo)) +
+    geom_boxplot() +
     coord_flip()
 ```
 
