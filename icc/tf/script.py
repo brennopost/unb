@@ -7,4 +7,4 @@ plt.hist(df.overall, bins = 18)
 
 plt.scatter(df.overall, df.eur_value, c = df.eur_value)
 
-plt.bar(df.league, df.overall)
+plt.scatter(df.weight_kg, df.pac, alpha=0.1)
