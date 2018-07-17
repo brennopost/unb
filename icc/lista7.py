@@ -56,6 +56,17 @@ for i in range(N):
 for i in sorted(ex_machina.keys(), reverse=True):
     print(ex_machina[i],end='')
 
+# %% QUESTAO 3 refeita
+N = int(input())
+ex_machina = {}
+
+for i in range(N):
+    no_problemo, solution, difficulty = input().split(" ")
+    ex_machina.update([(int(difficulty), solution)])
+
+for i in sorted(ex_machina.keys(), reverse=True):
+    print(solution[0],end='')
+
 # %% QUESTAO 4
 N = int(input())
 pos = [0,0]
@@ -91,7 +102,7 @@ for i in wordList:
         output.append((i, wordList.count(i)))
 
 #for i in output:
-for i in sorted(output, key=lambda tup: tup[1], reverse=True):
+for i in sorted(output, key=lambda tup: (tup[1], tup[0]), reverse=True):
     print("{} {}".format(i[0].capitalize(), i[1]))
 
 # %% QUESTAO 6
@@ -102,19 +113,26 @@ for i in range(N):
     papers.append((file, otherStuff))
 
 keywords = input().split()
-for i in papers:
-        if any(x in i[1] for x in keywords):
-            print(i[0])
+search = list(filter(lambda f: list(filter(lambda tag: tag in keywords, f[1])), papers))
+for i in search:
+    print(i[0])
 
 # %% QUESTAO 7
 X, Y = input().split()
+cache = dict()
 def ack(x, y):
-    if x == 0:
-        return y + 1
-    if y == 0:
-        return ack(x - 1, 1)
-    else:
-        return ack(x -1, ack(x, y-1))
+    if not (x, y) in cache:
+        if x == 0:
+            cache[x, y] = y + 1
+        elif x == 1:
+            cache[x, y] = y + 2
+        elif x == 2:
+            cache[x, y] = 2*y+3
+        elif y == 0:
+            cache[x, y] = ack(x - 1, 1)
+        else:
+            cache[x, y] = ack(x -1, ack(x, y-1))
+    return cache[x, y]
 
 print(ack(int(X), int(Y)))
 
