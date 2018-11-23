@@ -1,0 +1,907 @@
+---
+title: ""
+output: 
+    pdf_document
+lang: "pt"
+documentclass: article
+classoption: a4paper
+fontsize: 11pt
+geometry: margin= 3cm
+header-includes:
+- \usepackage{float} #use the 'float' package
+- \floatplacement{figure}{H}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE,  fig.width = 3.5, fig.height = 2, fig.align = 'center', out.extra = '', fig.show = "hold")
+
+library('tidyverse')
+library('viridis')
+library(knitr)
+
+theme_set(theme_light())
+theme_update(# axis labels
+             axis.title = element_text(size = 8),
+             # tick labels
+             axis.text = element_text(size = 7),
+             # title 
+             title = element_text(size = 8),
+             # legend
+             legend.text = element_text(size = 7),
+             # legend title
+             legend.title = element_text(size = 8))
+
+setwd("~/UnB/ME1/tf")
+prova_brasil <- read_rds("dados.rds")
+prova_brasil50 <- read_rds("dados50.rds")
+
+medidas <- function(data){
+  mean = mean(data)
+  median = median(data)
+  q1 = quantile(data, names=FALSE)[2]
+  q3 = quantile(data, names=FALSE)[4]
+  
+  var = var(data)
+  sd = sd(data)
+  
+  d1 = quantile(data, seq(0, 1, 0.1), names=FALSE)[2]
+  d9 = quantile(data, seq(0, 1, 0.1), names=FALSE)[10]
+  
+  skew = 3*(mean - median)/sd
+  kurt = (q3 - q1)/(2*(d9 - d1))
+
+  return(cat(
+  cat("Média:", mean),
+  cat("\nMediana:", median),
+  cat("\n1º e 3º quantil:", q1, q3),
+  cat("\nVariância e Desvio Padrão:", var, sd),
+  cat("\nAssimetria:", skew),
+  cat("\nCurtose:", kurt), sep = "\n"))
+}
+
+ramo <- function(data){
+  vec <- capture.output(stem(data))
+    for (i in vec[4:length(vec)]) {
+    cat(i, "\n")
+    }
+  
+}
+
+tabela <- function(data, title){
+   
+return(full_join(as.data.frame(table(prova_brasil[data])), as.data.frame(table(prova_brasil50[data])), by = "Var1"))
+}
+
+# pal = c("#679997", "#2DCCC5")
+pal = c("#383838", "#9b9b9b")
+```
+
+\begin{center}
+```{r pressure, echo=FALSE,out.width = '50%',fig.align='center'}
+knitr::include_graphics("unb.jpg")
+```
+ \Large Universidade de Brasília\\
+ IE - Departamento de Estatística\\
+ Trabalho de Métodos Estatíticos 1
+\end{center} 
+ \vskip 12em
+\begin{center}
+ \Large \textbf{Análise da amostra da Prova Brasil 2011}
+ \par
+ \vskip 7em
+\end{center}
+\setlength{\baselineskip}{.5cm}
+\small \textbf{}
+\par
+\vskip 4em
+
+\begin{flushright}
+\small Brenno Pereira Cordeiro - 180098632\\
+\small Rafael Ferreira Clé - 140159533\\
+\vskip 2em
+\small Prof. Maria Teresa Leão Costa
+\end{flushright}
+
+\vskip 6em
+\begin{center}
+\setlength{\baselineskip}{.5cm}
+Brasília\\
+\vskip 1em
+Novembro de 2018
+\end{center}
+
+\newpage
+\tableofcontents
+
+\newpage
+
+# Introdução
+
+A Prova Brasil ou avaliação nacional do rendimento escolar é uma prova realizada a cada 2 anos em que participam todos os alunos de escolas públicas do 5°, 9° e 3° ano e é dividida em 2 avaliações, Língua portuguesa e Matemática. O objetivo da pesquisa é analisar os resultados do exame, assim como a localização das escolas, proporção de alunos que compareceram, administração, tamanho do município e melhora em relação a prova anterior.
+ Análise descritiva das variáveis
+
+## Objetivos
+
+1. Descrever as características das escolas e o desempenho de seus estudantes na Prova de Brasil em 2011.
+2. Estimar a proporção de escolas que menos de 75% de seus estudantes participaram da Prova Brasil em 2011.
+3. Estimar a proficiência média em Língua Portuguesa e em Matemática das escolas na Prova Brasil em 2011.
+4. Verificar se houve melhora do resultado da Prova Brasil de 2009 para 2011. Na Prova Brasil realizada em
+2009 a proficiência em Língua Portuguesa foi 184,3 e em Matemática foi 204,3.
+
+\newpage
+
+# Metodologia
+
+A análise procedeu a partir de duas amostras: a amostra 1, de tamannho $n = 200$ e uma amostra desse conjunto, a amostra 2, de tamanho $n = 50$.
+
+Nessa análise foi utilizado o software estatístico R com os pacotes da bibiloteca  `tidyverse` para auxiliar no processamento dos dados, criação de tabelas e geração de gráficos. Para gerar esse relatório utilizamos a linguagem *Markdown*.
+
+O processo de análise do desempenho das escolas se a partir de 11 variáveis:
+
+1. Região das escolas, variável qualitativa de escala nominal. A análise dessa variável determina a proporção aproximada de escolas onde o exame foi realizado em cada região do Brasil, organizado nas categorias: Sul, Sudeste, Centro-oeste, Nordeste e Norte; sendo essas definidas por lei.
+2. Classificação das escolas em relação à localidade, Rural ou Urbana, variável qualitativa de escala nominal. A análise dessa variável determina a proporção aproximada das escolas que são localizadas em áreas urbanas ou rurais, sendo estas determinadas por lei.
+3. Administração da escola, variável qualitativa de escala nominal. A análise dessa variável determina a proporção aproximada de escolas as quais a administração é municipal, estadual ou federal, possibilitando estudos de correlação entre nota, proporção de alunos matriculados que fizeram a prova e o tipo de administração de cada escola.
+4. Tamanho do município em número de habitantes, variável quantitativa de escala discreta. A análise dessa variável possibilita estudos de correlação com a quantidade de alunos matriculados (tamanho das escolas) e a proporção das escolas onde mais de 75% dos alunos compareceram ao exame.
+5. Tamanho da escola, variável quantitativa de escala discreta, organizada em grupos definidos pelo número de alunos matriculados, é uma coleta indireta da variável 6, os grupos são: menos que 25 alunos matriculados, 25 a 49 alunos matriculados, 50 a 99 alunos matriculados e mais de 100 alunos matriculados. A análise dessa variável possibilita o estudo de correlação entre o tamanho da escola e a nota, proporção de alunos matriculados que compareceram ao exame.
+6. Número de alunos matriculados na escola em 2011, variável quantitativa de escala discreta. A análise dessa variável possibilita o estudo da proporção de alunos que compareceram ao exame.
+7. Proporção de alunos da escola que compareceram ao exame, variável quantitativa de escala contínua. A análise dessa variável possibilita análises de correlação como entre o tipo de escola, a localização e o tamanho e a proporção de estudantes da escola que compareceram ao exame.
+8. Média na escola da nota na prova de língua portuguesa, variável quantitativa de escala contínua. A análise dessa variável permite o estudo da média na prova de matemática em todas as escolas, e a correlação com as outras variáveis estudadas, além de verificar se houve melhora em relação às provas anteriores.
+9. Média na escola da nota da prova em matemática, variável quantitativa de escala contínua. A análise dessa variável permite o estudo da média em todas as escolas e a correlação com  outras variáveis estudadas, além de verificar se houve melhora em relação às provas anteriores.
+
+Para a realização da análise das variáveis das amostras foi necessário utilização das medidas descritivas apresentadas a baixo. 
+
+* Média
+$$ \mu = \frac{\sum_{i}^{n} x_{i}}{n} $$
+* Variância Populacional
+$$ \sigma^2 = \frac{\sum_{i=1}^{n}(x_i - \mu)^2} {n} $$
+* Variância Amostral
+$$ S^2 = \frac{\sum_{i}^{n}(x_i - \bar{x})^2}{n-1} $$
+* Coeficiente de Assimetria de Pearson
+$$ 3 \frac{\mu - {Md}}{\sigma}$$
+* Coeficiente de Achatamento
+$$ K = \frac{Q_{3} - Q_{1}}{2(P_{90} - P_{10})} $$
+
+Para a relização das estimações intervalares usamos as seguintes fórmulas
+
+* Estimação da Proporção Populacional
+$$ p \in \left ( \hat{p} \mp z_{\alpha/2}\sqrt{\frac{\hat{p}(1-\hat{p})}{n}} \right ) $$
+* Estimação da Média Populacional com Variância Desconhecida
+$$ \mu \in \left ( \bar{x} \pm  t_{\alpha/2}\frac{s}{\sqrt{n}} \right ) $$
+
+
+
+
+\newpage
+# Análise das Variáveis
+
+### Região
+
+
+```{r fig.show='hold'}
+full_join(count(prova_brasil, REG), count(prova_brasil50, REG), by = "REG") %>% 
+  kable(caption = "Distribuição de Frequência da Região das Escolas", col.names = c("Região", "Frequência (n=200)", "Frequência (n=50)"), format = 'markdown')
+```
+
+```{r  fig.show='hold', fig.width=3, fig.cap="Distribuição de Frequência da Região das Escolas"}
+prova_brasil %>% 
+  count(REG) %>% 
+  ggplot(aes(fct_reorder(REG, n), n, fill = n)) +
+    geom_bar(stat = "identity") +
+    scale_fill_viridis(discrete = FALSE, direction = 1, option = "D") +
+    labs(x = "Região", y = "Frequência", title = "n = 200") +
+    theme(legend.position = 'hide')
+
+prova_brasil50 %>% 
+  count(REG) %>% 
+  ggplot(aes(fct_reorder(REG, n), n, fill = n)) +
+    geom_bar(stat = "identity") +
+    scale_fill_viridis(discrete = FALSE, direction = 1, option = "D") +
+    labs(x = "Região", y = "Frequência", title = "n = 50") +
+    theme(legend.position = 'hide')
+  
+```
+
+A maior parte das escolas analisadas, 38,5%, se encontram no Sudeste. 31% das escolas da amostra se encontram no Nordeste, 15% no Sul, 8,5% no Norte e 7% na região Centro-Oeste.
+Na amostra menor foram encontrados os seguintes resultados: 6% das observações que compõem a amostra são de escolas no centro-oeste, 12% no norte, 36% no nordeste, 12% no sul e 34% no sudeste.
+
+<!-- Fazer comparação com censo escolar 2011-->
+
+### Local
+
+```{r}
+full_join(count(prova_brasil, LOCAL), count(prova_brasil50, LOCAL), by = "LOCAL") %>% 
+  kable(caption = "Distribuição de Frequência da Localidade das Escolas", col.names = c("Localidade", "Frequência (n=200)", "Frequência (n=50)"))
+```
+  
+```{r  fig.show = 'hold', fig.width=2, results='asis', fig.cap="Distribuição de Frequências do Local das Escolas"}
+prova_brasil %>% 
+  mutate(LOCAL = fct_rev(LOCAL)) %>% 
+  count(LOCAL) %>% 
+  ggplot(aes(x = "", y=LOCAL, fill = LOCAL)) +
+  geom_bar(stat='identity', width = 1) +
+  coord_polar("y", start = 0) +
+  scale_fill_manual(values = pal) +
+  labs(fill = "Local", title = "n = 200") +
+  theme_void()
+
+prova_brasil50 %>% 
+  mutate(LOCAL = fct_rev(LOCAL)) %>% 
+  count(LOCAL) %>% 
+  ggplot(aes(x = "", y=LOCAL, fill = LOCAL)) +
+  geom_bar(stat='identity', width = 1) +
+  coord_polar("y", start = 0) +
+  scale_fill_manual(values = pal) +
+  labs(fill = "Local", title = "n = 50") +
+  theme_void()
+```
+
+A proporção de escolas na região Urbana é de 0,82 e na região Rural é de 0,18.
+Na amostra menor foi encontrado o seguinte resultado: 82% das observações que compõem a amostra são de escolas de áreas urbanas e 18% de áreas rurais.
+
+<!--
+```{r fig.width=4, fig.height=2.5, fig.cap="Proporção de escolas Urbanas e Rurais em cada Região"}
+prova_brasil %>%
+  mutate(REG = factor(REG, levels =  c("Nordeste","Norte",  "Sudeste",   "Sul", "Centro-oeste")),
+         LOCAL = fct_rev(LOCAL)) %>% 
+  ggplot() + 
+  geom_bar(aes(REG, fill = LOCAL),position = "fill") +
+  scale_fill_manual(values = rev(pal)) +
+  #theme_minimal() +
+  labs(x = "Região", y = "Proporção", fill = "Local")
+```
+
+O Estado com maior proporção de escolas urbanas é o Centro-Oeste.
+-->
+### Tamanho do Município
+
+```{r}
+tabela('TAM_MUN') %>% 
+  kable(caption = "Distibuição de Frequências do Tamanho do Município",col.names = c("Tamanho do Município", "Frequência (n=200)", "Frequência (n=50)"))
+```
+
+
+```{r, fig.width= 4.7, fig.height=3, fig.cap="Distibuição de Frequências do Tamanho do Município"}
+prova_brasil %>% 
+  mutate(  TAM_MUN = fct_recode(TAM_MUN,
+      "Menos que 20000" = "<20000 hab",
+      "20000 a 49999" = "20000 a 49999 hab",
+      "50000 a 99999" = "50000 a 99999 hab",
+      "100000 a 999999" = "100000 a 999999 hab"
+      )) %>% 
+  ggplot() +
+  geom_bar(aes(TAM_MUN, fill = TAM_MUN)) +
+  scale_fill_viridis_d(direction = -1) +
+  #theme_classic() +
+  theme(legend.position = "hide") +
+  labs(x= "Tamanho da População do Município", y="Frequência", title = "n = 200")
+
+prova_brasil50 %>% 
+  mutate(  TAM_MUN = fct_recode(TAM_MUN,
+      "Menos que 20000" = "<20000 hab",
+      "20000 a 49999" = "20000 a 49999 hab",
+      "50000 a 99999" = "50000 a 99999 hab",
+      "100000 a 999999" = "100000 a 999999 hab"
+      )) %>% 
+  ggplot() +
+  geom_bar(aes(TAM_MUN, fill = TAM_MUN)) +
+  scale_fill_viridis_d(direction = -1) +
+  #theme_classic() +
+  theme(legend.position = "hide") +
+  labs(x= "Tamanho da População do Município", y="Frequência", title = "n = 50")
+```
+
+A distribuição dos municípios se aproxima de uma distribuição normal, com assimetria à direita. A maior parte dos municípios da amostra tem entre 20000 e 49999 habitantes e a mediana se encontra na faixa de 50000 a 99999 habitantes.
+Na amostra menor foi encontrada a seguinte proporção: 12% dos municípios tem menos de 20 mil habitantes. 24% tem 20 mil ou mais e menos de 50 mil habitantes, 28% tem 50 mil ou mais e menos de 100 mil, 12% tem mais de 100 mil e menos de 1 milhão e 24% tem mais de um milhão de habitantes.
+
+### Categoria Admnistrativa
+
+```{r fig.show = "hold", fig.width= 2.5, fig.height=1.3, fig.cap="Distribuição de Frequências da Categoria Admnistrativa da Escola"}
+kable(tabela('ADM'), col.names = c("Categoria Admnistrativa", "Frequência (n = 200)", "Frequência (n = 50)"), caption = "Distribuição de Frequências da Categoria Admnistrativa da Escola")
+
+prova_brasil %>% 
+  count(ADM) %>% 
+  ggplot(aes(x = "", y = ADM, fill = ADM)) +
+  geom_bar(stat='identity', width = 1) + 
+  scale_fill_manual(values = pal) +
+  coord_polar("y", start = 0) +
+  theme_void() +
+  theme(title = element_text(size = 8)) +
+  labs(fill = "Categoria \nAdmnistrativa", title = "n = 200")
+
+prova_brasil50 %>% 
+  count(ADM) %>% 
+  ggplot(aes(x = "", y = ADM, fill = ADM)) +
+  geom_bar(stat='identity', width = 1) + 
+  scale_fill_manual(values = pal) +
+  coord_polar("y", start = 0) +
+  theme_void() +
+  theme(title = element_text(size = 8)) +
+  labs(fill = "Categoria \nAdmnistrativa", title = "n = 50")
+```
+
+79,5% das escolas dessa amostra são municipais e 20,5% são estaduais. Não há escolas federais nessa amostra.
+Na amostra menor foi encontrada a seguinte proporção; 16% das observações que compõem a amostra são escolas de administração estadual, 84% são escolas de administração municipal e 0% são de administração federal
+
+### Tamanho da Escola 
+
+```{r fig.show='hold'}
+kable(tabela('TAM_ESCOLA'), col.names = c("Tamanho da Escola", "Frequência (n = 200)", "Frequência (n = 50)"), caption = "Distribuição de Frequências do Tamanho da Escola")
+```
+
+```{r fig.width=3, fig.cap="Distribuição de Frequências do Tamanho da Escola"}
+prova_brasil %>% 
+  ggplot() +
+  geom_bar(aes(TAM_ESCOLA, fill = TAM_ESCOLA)) +
+  scale_fill_viridis_d(direction = 1) +
+  theme(legend.position = 'hide') +
+  labs(x = "Tamanho da Escola em Número de Alunos", y = "Frequência", title = "n = 200")
+
+prova_brasil50 %>% 
+  ggplot() +
+  geom_bar(aes(TAM_ESCOLA, fill = TAM_ESCOLA)) +
+  scale_fill_viridis_d(direction = 1) +
+  theme(legend.position = 'hide') +
+  labs(x = "Tamanho da Escola em Número de Alunos", y = "Frequência", title = "n = 50")
+```
+
+A maior parte das escolas tem entre 25 a 49 alunos. Porém, a informação dessa variável é melhor compreendida a partir da variável alunos matriculados.
+Na amostra menor foi encontrada a seguinte proporção: 12% das escolas tem 25 ou menos alunos matriculados, 32% tem 25 ou mais e menos de 50. 34% tem 50 ou mais e menos de 100 e 22% tem 100 ou mais alunos.
+
+### Alunos Matriculados
+
+```{r, include= FALSE}
+ramo(prova_brasil$MATRICULADOS)
+ramo(prova_brasil50$MATRICULADOS)
+```
+#### Ramo e Folhas
+
+* n = 200
+
+   2 | 00000111122222222223345555566666677777999900001111233333344455566667  
+   4 | 1111223333345555556678899002333445668999  
+   6 | 00012223444445556677889901344579  
+   8 | 23456666677789133455678  
+  10 | 11445601133  
+  12 | 12445678922499  
+  14 | 112  
+  16 | 413  
+  18 | 51  
+  20 |   
+  22 |   
+  24 |   
+  26 | 29   
+  
+* n = 50
+
+   2 | 122224566772346  
+   4 | 11255682369  
+   6 | 144567  
+   8 | 3673567  
+  10 | 140  
+  12 | 128924  
+  14 |   
+  16 | 4  
+  18 | 1  
+
+(Multiplicar por 10) 
+
+```{r, fig.width=3, fig.height=2.7, fig.cap= "Distribuição de frequências dos alunos matriculados em classes de valores"}
+# Distribuição de frequências em intervalos de classe
+prova_brasil %>% 
+  mutate(MAT = cut(MATRICULADOS,breaks = seq(0,300,50))) %>% 
+  count(MAT) %>% 
+  ggplot() +
+  geom_bar(aes(MAT, n, fill = n), stat="identity") +
+  scale_fill_viridis(direction = 1) +
+  labs(x = "Alunos Matriculados", y = "Frequência", title ="n = 200") +
+  theme(legend.position = 'hide')
+
+prova_brasil50 %>% 
+  mutate(MAT = cut(MATRICULADOS,breaks = seq(0,200,40))) %>% 
+  count(MAT) %>% 
+  ggplot() +
+  geom_bar(aes(MAT, n, fill = n), stat="identity") +
+  scale_fill_viridis(direction = 1) +
+  labs(x = "Alunos Matriculados", y = "Frequência", title ="n = 50") +
+  theme(legend.position = 'hide')
+```
+
+```{r fig.cap="Histograma da quantidade de Alunos Matriculados", fig.width=2.7}
+# Histograma
+ggplot(prova_brasil, aes(x = MATRICULADOS)) +
+  geom_histogram(aes(fill = ..count..),bins = 20) +
+  scale_fill_viridis() +
+  theme(legend.position = 'hide') +
+  labs(x = "Alunos Matriculados", y = "Frequência", title = "n = 200")
+ggplot(prova_brasil50, aes(x = MATRICULADOS)) +
+  geom_histogram(aes(fill = ..count..),bins = 14) +
+  scale_fill_viridis() +
+  theme(legend.position = 'hide') +
+  labs(x = "Alunos Matriculados", y = "Frequência", title = "n = 50")
+```
+
+
+```{r, include=FALSE}
+medidas(prova_brasil50$MATRICULADOS)
+```
+
+
+```{r fig.width=2.5, fig.show = "hold", fig.cap= "Distribuição dos Alunos Matriculados"}
+# Boxplot
+ggplot(prova_brasil) +
+  geom_boxplot(aes(x = "", y = MATRICULADOS)) +
+  coord_flip() +
+  theme(axis.title.y = element_blank()) + 
+  scale_y_continuous(name = "Alunos Matriculados", breaks = seq(0,300,30)) +
+  labs(title = "n = 200")
+
+ggplot(prova_brasil50) +
+  geom_boxplot(aes(x = "", y = MATRICULADOS)) +
+  coord_flip() +
+  theme(axis.title.y = element_blank()) + 
+  scale_y_continuous(name = "Alunos Matriculados", breaks = seq(0,300,30)) +
+  labs(title = "n = 50")
+  
+```
+
+#### Medidas (n = 200):  
+* Média: 64.485
+* Mediana: 53
+* 1º e 3º quantil: 31.75 86
+* Variância e Desvio Padrão: 1852.171 43.03685 
+* Assimetria: 0.8005929
+* Curtose: 0.2682987 
+
+#### Medidas (n = 50):  
+* Média: 67.74 
+* Mediana: 57.5
+* 1º e 3º quantil: 33.25 95.75
+* Variância e Desvio Padrão: 1730.686 41.60152
+* Assimetria: 0.7384346
+* Curtose: 0.2996165
+
+A distribuição da quantidade de alunos matriculados tem uma maior concentração nos valores baixos, entre 30 e 60 alunos, e a frequência diminui conforme a quantidade de alunos aumenta.
+
+```{r, fig.cap= "Nota média por Tamanho da Escola"}
+prova_brasil %>% 
+  group_by(TAM_ESCOLA) %>% 
+  summarise(lp = mean(NOTA_LP), mat =  mean(NOTA_MT)) %>% 
+  gather('lp', 'mat', key = 'mod', value = 'nota') %>% 
+ggplot() +
+  geom_bar(aes(TAM_ESCOLA, nota, fill = mod), stat = "identity") +
+  scale_fill_manual(values = pal, labels = c("Língua \nPortuguesa", "Matemática") ) +
+  labs(x = "Tamanho da Escola", y = "Nota", fill = "Modalidade")
+```
+
+É importante notar também que as escolas com 100 ou mais alunos matriculados obteve desempenho médio maior que as demais escolas.
+
+### Participação
+
+
+```{r, include=FALSE}
+ramo(prova_brasil$PARTICIPACAO)
+ramo(prova_brasil50$PARTICIPACAO)
+```
+
+#### Ramo e Folhas  
+
+* (n=200)  
+
+   5 | 04  
+   5 | 9  
+   6 | 0  
+   6 | 6899  
+   7 | 0144  
+   7 | 567888899  
+   8 | 0000123333444  
+   8 | 55555577777777788888888999999  
+   9 | 00000000011111111111111111111122222222223333333444444444444  
+   9 | 5555555555666666666666677777777777777888888889999  
+  10 | 00000000000000000000000000000  
+  
+* (n=50)  
+
+   6 | 89  
+   7 | 04  
+   7 | 79  
+   8 | 02334  
+   8 | 5778999  
+   9 | 0011111122222334  
+   9 | 555667778  
+  10 | 0000000  
+  
+(Multiplicar por 10)
+
+```{r, fig.width=3, fig.height=2, fig.cap="Distribuição de frequências do percentual de participação em intervalos de classe"}
+# Distribuição de frequências em intervalos de classe
+prova_brasil %>% 
+  mutate(PART = cut(PARTICIPACAO, breaks = seq(10,100,15))) %>% 
+  count(PART) %>% 
+  ggplot() +
+  geom_bar(aes(PART, n, fill = n), stat="identity") +
+  scale_fill_viridis(direction = 1) +
+  labs(x = "Percentual de estudantes da escola \nque fizeram a Prova Brasil em 2011", y = "Frequência", title = "n = 200") +
+  theme(legend.position = 'hide')
+prova_brasil50 %>% 
+  mutate(PART = cut(PARTICIPACAO, breaks = seq(10,100,15))) %>% 
+  count(PART) %>% 
+  ggplot() +
+  geom_bar(aes(PART, n, fill = n), stat="identity") +
+  scale_fill_viridis(direction = 1) +
+  labs(x = "Percentual de estudantes da escola \nque fizeram a Prova Brasil em 2011", y = "Frequência", title = "n = 50") +
+  theme(legend.position = 'hide')
+```
+
+```{r, fig.cap= "Histograma do Percentual de Participação", fig.width=2.7}
+# Histograma
+ggplot(prova_brasil, aes(x = PARTICIPACAO/100)) +
+  geom_histogram(aes(fill = ..count..),bins = 20) +
+  scale_fill_viridis() +
+  theme(legend.position = 'hide') +
+  labs(x = "Percentual de Participação", y = "Frequência", title = "n = 200") + 
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1))
+
+ggplot(prova_brasil50, aes(x = PARTICIPACAO/100)) +
+  geom_histogram(aes(fill = ..count..),bins = 20) +
+  scale_fill_viridis() +
+  theme(legend.position = 'hide') +
+  labs(x = "Percentual de Participação", y = "Frequência", title = "n = 50") + 
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1))
+```
+
+
+```{r include = FALSE}
+medidas(prova_brasil$PARTICIPACAO)
+medidas(prova_brasil50$PARTICIPACAO)
+```
+
+```{r, fig.cap="Distribuição do Percentual de Participação", fig.width=3}
+# Boxplot
+ggplot(prova_brasil) +
+  geom_boxplot(aes(x = "", y = PARTICIPACAO/100)) +
+  coord_flip() +
+  theme(axis.title.y = element_blank()) + 
+  scale_y_continuous(name = "Percentual de Participação", breaks = seq(0,1,0.1)) +
+  labs(title = "n = 200")
+
+ggplot(prova_brasil50) +
+  geom_boxplot(aes(x = "", y = PARTICIPACAO/100)) +
+  coord_flip() +
+  theme(axis.title.y = element_blank()) + 
+  scale_y_continuous(name = "Percentual de Participação", breaks = seq(0,1,0.1)) +
+  labs(title = "n = 50")
+```
+
+#### Medidas (n = 200):  
+  
+* Média: 90.63082  
+* Mediana: 92.03175  
+* 1º e 3º quantil: 87.59665 96.77419  
+* Variância e Desvio Padrão: 80.03825 8.94641  
+* Assimetria: -0.4697728  
+* Curtose: 0.2184244  
+
+#### Medidas (n = 50):  
+  
+* Média: 89.85077  
+* Mediana: 90.94635  
+* 1º e 3º quantil: 86.73913 95.86364  
+* Variância e Desvio Padrão: 68.09725 8.252106  
+* Assimetria: -0.3982921  
+* Curtose: 0.2137272  
+
+O percentual de participação na amostra se mantém nos valores perto de 100%, com um mínimo de 50%. A distribuição se aproxima de uma normal com assimetria a esquerda.
+
+### Nota Média em Língua Portuguesa
+
+```{r, include = FALSE}
+ramo(prova_brasil$NOTA_LP)
+ramo(prova_brasil50$NOTA_LP)
+```
+#### Ramo e Folhas  
+  
+* n = 200:  
+
+  13 | 014468  
+  14 | 3555689  
+  15 | 00222344566778889999  
+  16 | 0123444555666677  
+  17 | 00011111244555556677778899999  
+  18 | 0000001111233333334578889  
+  19 | 00001111223333334445555555677789999  
+  20 | 112222333333445567777899  
+  21 | 000001123345678889999  
+  22 | 0011111378  
+  23 | 11444  
+  24 | 29  
+  
+* n = 50:
+
+  13 | 48  
+  14 | 3  
+  15 | 89  
+  16 | 0344566  
+  17 | 111245556678  
+  18 | 00124  
+  19 | 0123459  
+  20 | 23567789  
+  21 | 899  
+  22 | 011  
+ 
+(Multiplicar por 10)
+
+```{r, fig.cap="Distribuição de frequências da nota média em Língua Portuguesa em intervalos de classe", fig.width=3, fig.height=2}
+# Distribuição de frequências em intervalos de classe
+prova_brasil %>% 
+  mutate(NOTA_LP = cut(NOTA_LP,breaks = seq(130,250,20))) %>% 
+  count(NOTA_LP) %>% 
+  ggplot() +
+  geom_bar(aes(NOTA_LP, n, fill = n), stat="identity") +
+  scale_fill_viridis(direction = 1) +
+  labs(x = "Nota", y = "Frequência", title = "n = 200") +
+  theme(legend.position = 'hide', axis.text.x = element_text(size = 7)) 
+
+prova_brasil50 %>% 
+  mutate(NOTA_LP = cut(NOTA_LP,breaks = seq(130,250,20))) %>% 
+  count(NOTA_LP) %>% 
+  ggplot() +
+  geom_bar(aes(NOTA_LP, n, fill = n), stat="identity") +
+  scale_fill_viridis(direction = 1) +
+  labs(x = "Nota", y = "Frequência", title = "n = 50") +
+  theme(legend.position = 'hide', axis.text.x = element_text(size = 7)) 
+```
+
+```{r fig.cap= "Histograma das notas médias em Língua Portuguesa", fig.width=3}
+# Histograma
+ggplot(prova_brasil, aes(x = NOTA_LP)) +
+  geom_histogram(aes(fill = ..count..),bins = 22) +
+  scale_fill_viridis() +
+  theme(legend.position = 'hide') +
+  labs(x = "Nota", y = "Frequência", title = "n = 200")
+
+ggplot(prova_brasil50, aes(x = NOTA_LP)) +
+  geom_histogram(aes(fill = ..count..),bins = 22) +
+  scale_fill_viridis() +
+  theme(legend.position = 'hide') +
+  labs(x = "Nota", y = "Frequência", title = "n = 50")
+```
+
+
+```{r fig.cap="Distribuição das notas médias em Língua Portuguesa", fig.width=3}
+# Boxplot
+ggplot(prova_brasil) +
+  geom_boxplot(aes(x = "", y = NOTA_LP)) +
+  coord_flip() +
+  theme(axis.title.y = element_blank()) + 
+  scale_y_continuous(name = "Alunos Matriculados", breaks = seq(130,250,20)) +
+  labs(title = "n = 200")
+
+ggplot(prova_brasil50) +
+  geom_boxplot(aes(x = "", y = NOTA_LP)) +
+  coord_flip() +
+  theme(axis.title.y = element_blank()) + 
+  scale_y_continuous(name = "Alunos Matriculados", breaks = seq(130,250,20)) +
+  labs(title = "n = 50")
+  
+```
+
+```{r include=FALSE}
+medidas(prova_brasil$NOTA_LP)
+medidas(prova_brasil50$NOTA_LP)
+```
+
+#### Medidas (n = 200):  
+
+* Média: 186.4462  
+* Mediana: 187.84  
+* 1º e 3º quantil: 169.62 203.43  
+* Variância e Desvio Padrão: 592.5399 24.34214  
+* Assimetria: -0.17177  
+* Curtose: 0.2603333  
+
+#### Medidas (n = 50):  
+
+* Média: 183.912  
+* Mediana: 180.215  
+* 1º e 3º quantil: 170.5375 202.6075  
+* Variância e Desvio Padrão: 484.2281 22.00518  
+* Assimetria: 0.5040176  
+* Curtose: 0.2787532  
+
+### Nota Média em Matemática
+
+
+```{r, include=FALSE}
+ramo(prova_brasil$NOTA_MT) 
+ramo(prova_brasil50$NOTA_MT) 
+```
+
+#### Ramo e Folhas
+
+* n = 200:  
+
+  13 | 9  
+  14 | 58  
+  15 | 2357789  
+  16 | 0555566667899  
+  17 | 001111122444778888  
+  18 | 000112335667788   
+  19 | 0011111222334455666666667799  
+  20 | 000012233466666677778999  
+  21 | 011122233344455677888899  
+  22 | 001122233344667778899  
+  23 | 0000111222245566679  
+  24 | 0001222244455779  
+  25 | 000035599  
+  26 | 36  
+  27 |   
+  28 | 0  
+
+* n = 50  
+
+  14 | 53  
+  16 | 669478  
+  18 | 02356678123456667  
+  20 | 12471378  
+  22 | 11224667012249  
+  24 | 293  
+  
+(Multiplicar por 10)  
+
+```{r, fig.width=3, fig.height=2.3, fig.cap="Distribuição de frequências das notas médias em Matemática em intervalos de classe"}
+# Distribuição de frequências em intervalos de classe
+prova_brasil %>% 
+  mutate(NOTA_MT = cut(NOTA_MT,breaks = seq(130,280,25))) %>% 
+  count(NOTA_MT) %>% 
+  ggplot() +
+  geom_bar(aes(NOTA_MT, n, fill = n), stat="identity") +
+  scale_fill_viridis(direction = 1) +
+  labs(x = "Nota", y = "Frequência", title = "n = 200") +
+  theme(legend.position = 'hide') 
+
+prova_brasil50 %>% 
+  mutate(NOTA_MT = cut(NOTA_MT,breaks = seq(130,280,25))) %>% 
+  count(NOTA_MT) %>% 
+  ggplot() +
+  geom_bar(aes(NOTA_MT, n, fill = n), stat="identity") +
+  scale_fill_viridis(direction = 1) +
+  labs(x = "Nota", y = "Frequência", title = "n = 50") +
+  theme(legend.position = 'hide') 
+```
+
+```{r fig.cap = "Histograma de frequências das notas médias em Matemática", fig.width=3}
+# Histograma
+ggplot(prova_brasil, aes(x = NOTA_MT)) +
+  geom_histogram(aes(fill = ..count..),bins = 22) +
+  scale_fill_viridis() +
+  theme(legend.position = 'hide') +
+  labs(x = "Nota", y = "Frequência", title = "n = 200")
+
+ggplot(prova_brasil50, aes(x = NOTA_MT)) +
+  geom_histogram(aes(fill = ..count..),bins = 22) +
+  scale_fill_viridis() +
+  theme(legend.position = 'hide') +
+  labs(x = "Nota", y = "Frequência", title = "n = 50")
+```
+
+
+```{r fig.cap = "Distribuição das notas médias em Matemática", fig.width=3}
+# Boxplot
+ggplot(prova_brasil) +
+  geom_boxplot(aes(x = "", y = NOTA_MT)) +
+  coord_flip() +
+  theme(axis.title.y = element_blank()) + 
+  scale_y_continuous(name = "Alunos Matriculados", breaks = seq(130,250,20)) + 
+  labs(title = "n = 200")
+
+ggplot(prova_brasil50) +
+  geom_boxplot(aes(x = "", y = NOTA_MT)) +
+  coord_flip() +
+  theme(axis.title.y = element_blank()) + 
+  scale_y_continuous(name = "Alunos Matriculados", breaks = seq(130,250,20)) + 
+  labs(title = "n = 50")
+  
+```
+
+```{r, include="FALSE"}
+medidas(prova_brasil$NOTA_MT)
+medidas(prova_brasil50$NOTA_MT)
+```
+#### Medidas (n = 200):  
+
+* Média: 205.9038  
+* Mediana: 206.485  
+* 1º e 3º quantil: 185.3825 227.685  
+* Variância e Desvio Padrão: 801.2311 28.30603  
+* Assimetria: -0.06159819  
+* Curtose: 0.2825403  
+
+#### Medidas (n = 50):  
+
+* Média: 203.0868  
+* Mediana: 198.84  
+* 1º e 3º quantil: 185.6275 223.1775  
+* Variância e Desvio Padrão: 633.3605 25.16665  
+* Assimetria: 0.5062413  
+* Curtose: 0.3197486  
+
+\newpage
+
+# Estmimação
+
+## Proporção de escolas com menos de 75% de participação
+
+```{r include=FALSE}
+prova_brasil %>% 
+  mutate(p = ifelse(PARTICIPACAO > 75, TRUE, FALSE)) %>% 
+  count(p)
+
+p1 = sum(prova_brasil$PARTICIPACAO < 75)/200 # estimativa pontual
+se1 = sqrt(p1*(1-p1)/200) # erro padrão 
+e1 = qnorm(0.975) * se1
+
+p200 = p1 + c(-e1, e1)
+
+p2 = sum(prova_brasil50$PARTICIPACAO < 75)/50 # estimativa pontual
+se2 = sqrt(p1*(1-p1)/50) # erro padrão 
+e2 = qnorm(0.975) * se2
+
+p50 = p2 + c(-e2, e2)
+
+p200
+p50
+```
+
+A proporção de escolas com menos de 75% de participação está entre 0,027 e 0,093.
+Na amostra menor, a proporção está entre 0,014 e 0,146.
+
+## Proficiência Média
+```{r include=FALSE}
+t.test(prova_brasil$NOTA_LP)
+t.test(prova_brasil$NOTA_MT)
+
+t.test(prova_brasil50$NOTA_LP)
+t.test(prova_brasil50$NOTA_MT)
+```
+
+A proficiência média em Língua Portuguesa em 2011 está entre 183,05 e 189,84.
+A proficiência média em Matemática em 2011 está entre 201,96 e 209,85.  
+
+Na amostra menor, a proficiência média em Língua Portuguesa em 2011 está entre 177,66 e 190,17, e
+a proficiência média em Matemática em 2011 está entre 195,93 e 210,24.  
+
+## Teste se houve melhora
+
+```{r, include=FALSE}
+(mean(prova_brasil$NOTA_LP) - 184.3) / (sd(prova_brasil$NOTA_LP) / sqrt(length(prova_brasil$NOTA_LP)) )
+qt(0.975, length(prova_brasil$NOTA_LP) -1 )
+
+(mean(prova_brasil$NOTA_MT) - 204.3) / (sd(prova_brasil$NOTA_MT) / sqrt(length(prova_brasil$NOTA_MT)) )
+qt(0.975, length(prova_brasil$NOTA_LP) -1 )
+```
+ 
+### Notas de Língua Portuguesa
+ Vamos tomar nossa hipótese nula $H_0$ que a média das notas de língua portuguesa em 2011 é igual a média das notas em 2009, ou seja, 
+ 
+$$ \begin{matrix} H_0:\mu = 184,3 \\ H_1:\mu > 184,3 \end{matrix}$$
+ 
+ Definimos a região crítica a partir de uma distribuição de Student com 199 graus de liberdade, com um risco de 0,05, como sendo $t > 1,652547$. A estatística $T$ do teste a ser usada é:
+$$ T = \frac{\bar{X} - \mu}{\frac{s}{\sqrt{n}}} $$
+ O valor t da estatítica do teste é 1,246914. Portanto, não rejeitamos nossa hipóstese, o que significa que a nota média de Língua Portuguesa não melhorou de 2009 para 2011.
+ 
+### Notas de Matemática
+ Analogamente, tomamos a hipótese nula $H_0$ que a média das notas de Matemática em 2011 é igual a média das notas em 2009, ou seja,
+ 
+$$ \begin{matrix} H_0:\mu = 204,3 \\ H_1:\mu > 204,3 \end{matrix}$$
+
+Como tabalhamos com a mesma amostra, definimos a mesma região de rejeição $t > 1,652547$. O valor da nossa estatística do teste é 0.8012837. Também não rejeitamos a hipótese, o que significa que a média das notas em Matemática não melhorou.  
+
+Na amostra menor foram obtidos resultados semelhantes.  
+
+A média da prova de língua portuguesa em 2009 foi de 184,3; em 2011 a média observada na amostra menor foi de 183,91, com desvio padrão igual a 22,005. Tomando nossa hipótese $H_0:\mu  = 184,3$ e $H_1:\mu > 184,3$, o intervalo crítico é $t > 1,645$ para um risco de 5% e a estatística do teste é aproximadamente -0,124. Portanto não rejeitamos H0.
+
+A média da prova de matemática em 2009 foi de 204,3; em 2011 a média observada na amostra menor foi de 203,07, com desvio padrão igual a 25,17. Tomando nossa hipótese $H_0 : \mu = 204,3$ e $H_1 : \mu > 204,3$ o intervalo crítico é $t > 1,645$ para o risco de 5%. A estatística do teste é aproximadamente -0,35; portanto não rejeitamos H0, significando que não houve melhora.
+
+## Conclusão
+
+Podemos concluir que as notas não melhoraram de 2009 a 2011, com 5% de risco. 
