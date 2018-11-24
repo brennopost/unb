@@ -1,8 +1,33 @@
-library('tidyverse')
+library(tidyverse)
+library(viridis)
+library(ggridges)
 options(pillar.sigfig = 6)
 
 setwd("C:/Users/brn/Documents/unb/me1")
 prova_brasil <- read_rds("dados.rds")
+
+# Função para a frequência experada
+table2 <- function(data) {
+  exp_data <- data
+  for (i in 1:nrow(data)){
+    for(j in 1:ncol(data)){
+      # Makes row i and column j into the expected value
+      exp_data[i,j] <- (sum(data[i,]) * sum(data[,j])) / sum(data)
+    }
+  }
+  return(exp_data)
+}
+
+# Função para calcular o Χ²
+chisq <- function(data){
+  vec <- as.vector(data)
+  expec <- as.vector(table2(data))
+  chisq = 0
+  for(i in 1:length(vec)){
+    chisq = chisq + ((vec[i] - expec[i])**2)/expec[i]
+  }
+  return(chisq)
+}
 
 # 2 - Comparar a proficiência média em Matemática segundo o local da escola
 
@@ -11,6 +36,11 @@ ggplot(prova_brasil, aes(LOCAL, NOTA_MT)) +
 
 ggplot(prova_brasil, aes(NOTA_MT, ..density..,fill = LOCAL)) +
   geom_density()
+
+ggplot(prova_brasil, aes(NOTA_MT, LOCAL)) +
+  geom_density_ridges(scale = 4) + theme_ridges() +
+  scale_y_discrete(expand = c(0.01, 0)) +
+  scale_x_continuous(expand = c(0, 0))
 
 # Você diria que a proficiência em Matemática  é maior  em escolas urbanas? 
 # As variâncias são iguais?
@@ -183,8 +213,8 @@ chisq.test(part_local[2:3], correct = FALSE)
 # p-valor: 0,02773604
 1 - pchisq(4.8444, 1)
 
-# Região Crítica: 1.740074
-dchisq(0.05, 1)
+# Região Crítica: 0.00393214
+qchisq(0.05, 1)
 
 # Rejeitamos H_0: A proporção de participação varia conforme o local
 
@@ -210,7 +240,87 @@ chisq.test(part_adm[2:3], correct = FALSE)
 # p-valor: 0.7344109
 1 - pchisq(0.1151, 1)
 
-# Região Crítica: 1,740074
-dchisq(0.05, 1)
+# Região Crítica: 3.841459
+qchisq(0.95, 1)
 
 # Não Rejeitamos H_0: A proporção de participação...
+
+# ========================================= #
+# 6 - Verificar-se:
+# ========================================= #
+
+# a - Região e categoria administrativa estão associadas;
+
+reg_adm <- table(prova_brasil$ADM, prova_brasil$REG)
+
+prova_brasil %>% 
+  count(REG, ADM) %>% 
+  ggplot(aes(REG, ADM)) +
+  geom_tile(aes(fill = n)) +
+  scale_fill_viridis(option = "A")
+
+# Teste de Independência
+chisq.test(reg_adm)
+
+# H_0: p_ij = p_i+ * p_+j
+
+# Frequência Experada:
+table2(reg_adm)
+
+# Estatística do Teste: 11.24391
+chisq(reg_adm)
+
+# p-valor: 0.02395535
+1 - pchisq(chisq(reg_adm), 4)
+
+# Região Crítica: 9.487729
+qchisq(0.95, 4)
+
+# Rejeitamos H_0: Região e Categoria Administrativas não são independentes
+
+# b - Tamanho da escola e tamanho do município estão associados.
+
+tam <- table(prova_brasil$TAM_ESCOLA, prova_brasil$TAM_MUN)
+
+prova_brasil %>% 
+  count(TAM_ESCOLA, TAM_MUN) %>% 
+  ggplot(aes(TAM_ESCOLA, TAM_MUN)) +
+  geom_tile(aes(fill = n)) +
+  scale_fill_viridis(option = "E") +
+  coord_flip()
+
+prova_brasil %>%
+  group_by(TAM_MUN, TAM_ESCOLA) %>% 
+  summarise(n =  n()) %>% 
+  mutate( freq = n / sum(n)) %>% 
+  ggplot(aes(TAM_ESCOLA, TAM_MUN)) +
+  geom_tile(aes(fill = freq)) +
+  scale_fill_viridis(option = "E") +
+  coord_flip()
+
+prova_brasil %>%
+  ggplot(aes(TAM_ESCOLA, TAM_MUN))+
+  geom_count(aes(color = ..n..)) +
+  scale_color_viridis(option = "A")
+
+prova_brasil %>% 
+  ggplot(aes(TAM_MUN)) +
+   geom_bar(aes(fill = TAM_ESCOLA), position = "dodge")+
+   scale_fill_viridis_d()
+
+
+# Teste de Independência
+chisq.test(tam)
+
+# Frequências Relativas:
+table2(tam)
+
+# Estatística do Teste: 61.20021 ~ gl = 12
+chisq(tam)
+# p-valor: 1.362776e-08 ; 0,0000000136
+1 - pchisq(chisq(tam), 12)
+
+# Região Crítica: 21.02607
+qchisq(0.95, 12)
+
+# Rejeitamos H_0: Tamanho da Escola e Tamanho do Município não são independentes
