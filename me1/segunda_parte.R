@@ -1,9 +1,10 @@
 library(tidyverse)
 library(viridis)
 library(ggridges)
+library(magrittr)
 options(pillar.sigfig = 6)
 
-setwd("C:/Users/brn/Documents/unb/me1")
+setwd("~/unb/me1")
 prova_brasil <- read_rds("dados.rds")
 
 # Função para a frequência experada
@@ -324,3 +325,28 @@ chisq(tam)
 qchisq(0.95, 12)
 
 # Rejeitamos H_0: Tamanho da Escola e Tamanho do Município não são independentes
+
+# ========================================= #
+# Verificar se a nota em Língua Portuguesa é um bom indicador para
+# predizer a nota existe em Matemática, ou seja se estão associadas.
+# ========================================= # 
+
+prova_brasil %>% 
+  ggplot(aes(NOTA_LP, NOTA_MT)) +
+  geom_point(alpha = 0.8) +
+  geom_smooth(method = "lm", se = FALSE, color = "darkgray")
+
+# Teste de Correlação
+prova_brasil %$%
+  cor.test(NOTA_LP, NOTA_MT)
+
+# H_0: ro = 0
+# H_1: ro ≠ 0
+
+# Região Crítica:
+qt(0.975, 198)
+
+# Estatística do Teste: 49,37196
+# p-valor: menor que 2,2x10^-16
+
+# Rejeitamos H_0: Amostra idependente
