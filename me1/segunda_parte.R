@@ -327,7 +327,7 @@ qchisq(0.95, 12)
 # Rejeitamos H_0: Tamanho da Escola e Tamanho do Município não são independentes
 
 # ========================================= #
-# Verificar se a nota em Língua Portuguesa é um bom indicador para
+# 7. Verificar se a nota em Língua Portuguesa é um bom indicador para
 # predizer a nota existe em Matemática, ou seja se estão associadas.
 # ========================================= # 
 
@@ -350,3 +350,46 @@ qt(0.975, 198)
 # p-valor: menor que 2,2x10^-16
 
 # Rejeitamos H_0: Amostra idependente
+
+
+# ========================================= #
+# 8. Construa um modelo de regressão para predizer a nota    
+# em Matemática a partir da nota em Língua Portuguesa.
+# ========================================= # 
+
+modelo_notas <- lm(NOTA_MT ~ NOTA_LP, prova_brasil)
+
+# Somatorio XiYi: 7809864
+prova_brasil %$%
+  sum(NOTA_LP*NOTA_MT)
+
+# Somatorio Xi²: 7070356
+sum(prova_brasil$NOTA_LP**2)
+
+# Xbarra e Ybarra: 186.4462; 205.9038
+mean(prova_brasil$NOTA_LP)
+mean(prova_brasil$NOTA_MT)
+
+# Coeficiente angular: 1.118; Intercepto: -2.6
+
+# Verificando nosso modelo...
+prova_brasil %>% 
+  ggplot(aes(NOTA_LP, NOTA_MT)) +
+  geom_point(alpha = 0.8) +
+  geom_abline(slope = 1.118, intercept = -2.6)
+
+# Avaliação do Modelo
+notas_modelo <- prova_brasil %>% 
+  select(NOTA_LP, NOTA_MT) %>% 
+  mutate(predict = -2.6 + 1.118*NOTA_LP, resid = NOTA_MT - predict)
+
+notas_modelo %>% 
+  ggplot(aes(NOTA_LP, resid)) +
+  geom_point()
+
+summary(modelo_notas)
+
+# R²: 0.9254
+
+# p-valor: 2.2x10^-16
+1 - pf(2437.45, 1, 198)
