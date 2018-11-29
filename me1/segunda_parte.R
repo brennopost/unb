@@ -30,6 +30,105 @@ chisq <- function(data){
   return(chisq)
 }
 
+chisq2 <- function(vec, expec){
+  chisq = 0
+  for(i in 1:length(vec)){
+    chisq = chisq + ((vec[i] - expec[i])**2)/expec[i]
+  }
+  return(chisq)
+}
+
+# Função para gerar o esperado / observado
+ad <- function(data, breaks) {
+  obs <- table(cut(data, breaks))
+  ei <- vector()
+  p <- vector()
+  for(i in 1:length(breaks)-1) {
+    p[i] <- (pnorm(breaks[i+1], mean(data), sd(data)) - (pnorm(breaks[i], mean(data), sd(data))))
+  }
+  p[1] <- pnorm(breaks[2], mean(data), sd(data))
+  p[length(p)] <- (1 - pnorm(breaks[length(breaks)-1], mean(data), sd(data)))
+  ei = p * length(data)
+  
+  return(data.frame(obs, ei, p))
+
+}
+
+# 1 - Verficar distribuição
+
+prova_brasil %>% 
+  ggplot(aes(NOTA_LP)) +
+  geom_density(size = 1) +
+  theme_minimal()
+
+prova_brasil %>% 
+  ggplot(aes(sample = NOTA_LP)) +
+  geom_qq() + geom_qq_line()
+
+
+
+# Teste de Aderência
+# LP
+prova_brasil %>% 
+  mutate(NOTA_LP = cut(NOTA_LP,breaks = seq(130,250,10))) %>% 
+  count(NOTA_LP) %>% 
+  ggplot() +
+  geom_bar(aes(NOTA_LP, n, fill = n), stat="identity") +
+  scale_fill_viridis(direction = 1) +
+  labs(x = "Nota", y = "FrequÃªncia", title = "n = 200") +
+  theme(legend.position = 'hide', axis.text.x = element_text(size = 7)) 
+
+ad_lp <- ad(prova_brasil$NOTA_LP, seq(130,250,10))
+
+# H_0: Os dados se ajustam ao modelo
+# <=> p1 = p10, p2 = p20, ps = ps0
+# h_1: pj =/= pj0 para pelo menos um j
+chisq.test(ad_lp$Freq, p = ad_lp$p)
+
+# Estatística do Teste: Chi2 = 5.9673
+chisq2(ad_lp$Freq, ad_lp$ei)
+
+# p-valor: 0.7431865
+1 - pchisq(5.9673, 9)
+
+# ~&<======================>&~ #
+
+prova_brasil %>% 
+  ggplot(aes(NOTA_MT))+
+  geom_density()
+
+prova_brasil %>% 
+  ggplot(aes(sample = NOTA_MT)) +
+  geom_qq() + geom_qq_line()
+
+# MT
+prova_brasil %>% 
+  mutate(NOTA_MT = cut(NOTA_MT,breaks = seq(130,280,10))) %>% 
+  count(NOTA_MT) %>% 
+  ggplot() +
+  geom_bar(aes(NOTA_MT, n, fill = n), stat="identity") +
+  scale_fill_viridis(direction = 1) +
+  labs(x = "Nota", y = "FrequÃªncia", title = "n = 200") +
+  theme(legend.position = 'hide')
+
+ad_mt <- ad(prova_brasil$NOTA_MT, seq(130,280,10))
+
+# H_0: Os dados se ajustam ao modelo
+# <=> p1 = p10, p2 = p20, ps = ps0
+# h_1: pj =/= pj0 para pelo menos um j
+chisq.test(ad_mt$Freq, p = ad_mt$p)
+
+# Estatística do Teste: Chi2 = 12.05994
+chisq2(ad_mt$Freq, ad_mt$ei)
+
+# p-valor:  0.4329962
+1 - pchisq(12.159, 12)
+
+
+
+
+  
+
 # 2 - Comparar a proficiência média em Matemática segundo o local da escola
 
 ggplot(prova_brasil, aes(LOCAL, NOTA_MT)) +
@@ -387,9 +486,18 @@ notas_modelo %>%
   ggplot(aes(NOTA_LP, resid)) +
   geom_point()
 
+notas_modelo %>% 
+  ggplot(aes(sample = resid))+
+  geom_qq() + geom_qq_line()
+  
 summary(modelo_notas)
+
+# Teste do Modelo
+
+# 
 
 # R²: 0.9254
 
 # p-valor: 2.2x10^-16
 1 - pf(2437.45, 1, 198)
+
