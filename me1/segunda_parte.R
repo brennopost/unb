@@ -7,6 +7,10 @@ options(pillar.sigfig = 6)
 setwd("~/unb/me1")
 prova_brasil <- read_rds("dados.rds")
 
+palette <- c("#556270", "#4ECDC4", "#C7F464", "#FF6B6B", "#C44D58")
+dark_palette <- c("#2e353d", "#3a9992", "#9dc14f", "#cc5555", "#913841")
+pal <- c("#ECD078","#D95B43","#C02942","#542437","#53777A","#ECD078","#D95B43","#C02942")
+
 # Função para a frequência experada
 table2 <- function(data) {
   exp_data <- data
@@ -58,13 +62,48 @@ ad <- function(data, breaks) {
 
 prova_brasil %>% 
   ggplot(aes(NOTA_LP)) +
-  geom_density(size = 1) +
+  geom_density(fill = "gray60", color = "gray20", size = 1) + 
+  theme_minimal() +
+  labs(x = "Nota em Língua Portuguesa", y = "Densidade")
+
+prova_brasil %>% 
+  ggplot(aes(NOTA_MT))+
+  geom_density(fill = "gray60", color = "gray20", size = 1) + 
   theme_minimal()
 
 prova_brasil %>% 
   ggplot(aes(sample = NOTA_LP)) +
   geom_qq() + geom_qq_line()
 
+prova_brasil %>% 
+  ggplot(aes(sample = NOTA_MT)) +
+  geom_qq() + geom_qq_line()
+
+
+
+# %zzzzzzzzzzzzzzzzzzzzzzzzzzzz%
+prova_brasil %>% 
+  gather(`NOTA_LP`, `NOTA_MT`, key = "Prova", value = "Nota") %>% 
+  mutate(Prova = factor(Prova,labels =  c("Língua Portuguesa", "Matemática"))) %>% 
+  ggplot(aes(Nota)) +
+  geom_density(aes(fill = Prova, color = Prova), size = 1) + 
+  facet_wrap(~ Prova) +
+  #theme_minimal() +
+  scale_fill_manual(values = palette[2:3]) +
+  scale_color_manual(values = dark_palette[2:3])
+  labs(x = "Nota", y = "Densidade")
+#
+
+# %zzzzzzzzzzzzzzzzzzzzzzzzzzzz%
+prova_brasil %>% 
+  gather(`NOTA_LP`, `NOTA_MT`, key = "Prova", value = "Nota") %>% 
+  mutate(Prova = factor(Prova,labels =  c("Língua Portuguesa", "Matemática"))) %>% 
+  ggplot(aes(sample = Nota)) +
+  geom_qq() + geom_qq_line() +
+  facet_wrap(~ Prova) 
+    #theme_minimal() +
+  labs(x = "Normal Padrão", y = "Amostra")
+#
 
 
 # Teste de Aderência
@@ -93,13 +132,6 @@ chisq2(ad_lp$Freq, ad_lp$ei)
 
 # ~&<======================>&~ #
 
-prova_brasil %>% 
-  ggplot(aes(NOTA_MT))+
-  geom_density()
-
-prova_brasil %>% 
-  ggplot(aes(sample = NOTA_MT)) +
-  geom_qq() + geom_qq_line()
 
 # MT
 prova_brasil %>% 
@@ -131,8 +163,11 @@ chisq2(ad_mt$Freq, ad_mt$ei)
 
 # 2 - Comparar a proficiência média em Matemática segundo o local da escola
 
+# %zzzzzzzzzzzzzzzzzzzzzzzzzzz%
 ggplot(prova_brasil, aes(LOCAL, NOTA_MT)) +
   geom_boxplot()
+
+#
 
 ggplot(prova_brasil, aes(NOTA_MT, ..density..,fill = LOCAL)) +
   geom_density()
@@ -191,8 +226,10 @@ qt(.95, 198)
 # segundo categoria administrativa da escola. 
 # ========================================= #
 
+# %zzzzzzzzzzzzzzzzzzzzzzzzzzz%
 ggplot(prova_brasil, aes(ADM, NOTA_LP)) +
   geom_boxplot()
+#
 
 ggplot(prova_brasil, aes(NOTA_LP, ..density..,fill = ADM)) +
   geom_histogram(position = "identity", bins = 16, alpha = 0.8)
@@ -247,7 +284,15 @@ notas <- prova_brasil %>%
 prova_brasil %>% 
   gather('NOTA_LP', 'NOTA_MT', key = "mod", value = "nota") %>% 
   ggplot() +
-    geom_histogram(aes(nota, fill = mod))
+    geom_histogram(aes(nota, fill = mod), position = "identity")
+
+# %zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz%
+prova_brasil %>% 
+  gather('NOTA_LP', 'NOTA_MT', key = "mod", value = "nota") %>% 
+  ggplot() +
+  geom_density_ridges(aes(nota, mod, fill = mod)) + theme_ridges() +
+  scale_fill_manual(values = c("#4ECDC4", "#C7F464"))
+# 
 
 # As variâncias são iguais?
 prova_brasil %$%
@@ -280,6 +325,23 @@ qt(0.975, 392)
 
 # REJEITA MUITO PELAMOR
 
+## REFAZENDO - AMOSTRAS DEPENDEnTES
+dif <- prova_brasil %>% 
+  mutate(`Diferença` = NOTA_LP - NOTA_MT) %>% 
+  pull(Diferença)
+
+qplot(dif)
+
+prova_brasil %$% 
+  t.test(NOTA_LP, NOTA_MT, paired = TRUE)
+
+# Estatística do Teste: -33.2
+# p-valor: 
+pt(-33.2, 199)
+
+# Região Crítica: +- 1.971957
+qt(0.975, 199)
+
 
 # ========================================= #
 # 5 - Comparar a proporção de escolas que menos de 75% de  
@@ -298,16 +360,23 @@ prova_brasil %>%
   geom_dotplot(aes(fill = lt75)) +
   facet_wrap(~ LOCAL)
 
-
 part_local <- prova_brasil %>% 
-  group_by(LOCAL) %>% 
-  summarise("Menor que 75%" = sum(PARTICIPACAO < 75), "Maior que 75%" = sum(PARTICIPACAO >= 75))
+  select(LOCAL, PARTICIPACAO) %>% 
+  mutate(PARTICIPACAO = ifelse(PARTICIPACAO < 75, "less", "more")) %>% 
+  table()
+
+# Comparação de proporções
+prop.test((part_local), correct = FALSE)
+
+# ET: -2.2
+# p-valor: 0.0278
+2 * (pnorm(-2.2))
 
 # Teste de Homogeneidade
 
 # H_0: p_11 = p_21; p_21 = p_22
 # H_1: p_ij ≠ p_ik
-chisq.test(part_local[2:3], correct = FALSE)
+chisq.test(part_local, correct = FALSE)
 
 # Estatística do Teste: 4,8444
 # p-valor: 0,02773604
@@ -345,6 +414,18 @@ qchisq(0.95, 1)
 
 # Não Rejeitamos H_0: A proporção de participação...
 
+# b correta - região
+
+part_reg <- prova_brasil %>% 
+  select(REG, PARTICIPACAO) %>% 
+  mutate(PARTICIPACAO = ifelse(PARTICIPACAO < 75, "less", "more")) %>% 
+  table()
+
+chisq.test(part_reg, correct = FALSE)
+table2(part_reg)
+chisq(part_reg)
+1 - pchisq(chisq(part_reg), 4)
+
 # ========================================= #
 # 6 - Verificar-se:
 # ========================================= #
@@ -355,6 +436,13 @@ reg_adm <- table(prova_brasil$ADM, prova_brasil$REG)
 
 prova_brasil %>% 
   count(REG, ADM) %>% 
+  ggplot(aes(REG, ADM)) +
+  geom_tile(aes(fill = n)) +
+  scale_fill_viridis(option = "A")
+
+prova_brasil %>% 
+  count(REG, ADM) 
+ 
   ggplot(aes(REG, ADM)) +
   geom_tile(aes(fill = n)) +
   scale_fill_viridis(option = "A")
@@ -408,6 +496,21 @@ prova_brasil %>%
    geom_bar(aes(fill = TAM_ESCOLA), position = "dodge")+
    scale_fill_viridis_d()
 
+prova_brasil %>% 
+  ggplot(aes(TAM_MUN)) +
+  geom_bar(aes(fill = TAM_ESCOLA), position = "fill")+
+  scale_fill_manual(values = pal)
+
+prova_brasil %>% 
+  ggplot(aes(TAM_ESCOLA)) +
+  geom_bar(aes(fill = TAM_MUN), position = "fill")+
+  scale_fill_manual(values = pal)
+
+prova_brasil %>% 
+  ggplot(aes(TAM_ESCOLA)) +
+  geom_bar(aes(fill = TAM_MUN), position = "fill")+
+  scale_fill_manual(values = pal)
+
 
 # Teste de Independência
 chisq.test(tam)
@@ -433,7 +536,10 @@ qchisq(0.95, 12)
 prova_brasil %>% 
   ggplot(aes(NOTA_LP, NOTA_MT)) +
   geom_point(alpha = 0.8) +
-  geom_smooth(method = "lm", se = FALSE, color = "darkgray")
+  theme_minimal() +
+  labs(x = "Língua Portuguesa", y = "Matemática", title = "Dispersão da notas")
+  geom_smooth(method = "lm", se = FALSE, color = "darkgray") 
+
 
 # Teste de Correlação
 prova_brasil %$%
@@ -447,6 +553,7 @@ qt(0.975, 198)
 
 # Estatística do Teste: 49,37196
 # p-valor: menor que 2,2x10^-16
+
 
 # Rejeitamos H_0: Amostra idependente
 
@@ -475,7 +582,7 @@ mean(prova_brasil$NOTA_MT)
 prova_brasil %>% 
   ggplot(aes(NOTA_LP, NOTA_MT)) +
   geom_point(alpha = 0.8) +
-  geom_abline(slope = 1.118, intercept = -2.6)
+  geom_abline(slope = 1.118, intercept = -2.6, size = 1)
 
 # Avaliação do Modelo
 notas_modelo <- prova_brasil %>% 
@@ -485,6 +592,10 @@ notas_modelo <- prova_brasil %>%
 notas_modelo %>% 
   ggplot(aes(NOTA_LP, resid)) +
   geom_point()
+
+notas_modelo %>% 
+  ggplot(aes(resid)) +
+  geom_histogram()
 
 notas_modelo %>% 
   ggplot(aes(sample = resid))+
